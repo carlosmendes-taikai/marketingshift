@@ -1,4 +1,4 @@
-import { Star } from "lucide-react";
+import { Heart, Star } from "lucide-react";
 
 const REPO = "anishfn/shapeshift";
 
@@ -17,6 +17,9 @@ async function getStars(): Promise<number | null> {
   }
 }
 
+const BUTTON =
+  "inline-flex h-8 items-center gap-1.5 rounded-md border bg-background px-2.5 text-[13px] font-medium text-muted-foreground shadow-xs transition-[color,background-color,scale] duration-150 ease-out hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring active:scale-[0.96]";
+
 const formatStars = (n: number) => new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 }).format(n);
 
 function GithubMark(props: React.ComponentProps<"svg">) {
@@ -31,30 +34,39 @@ export async function SiteChrome() {
   const stars = await getStars();
   return (
     <>
-      <a
-        href={`https://github.com/${REPO}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={stars === null ? "Shapeshift on GitHub" : `Shapeshift on GitHub, ${stars} stars`}
-        className="fixed end-[max(1rem,env(safe-area-inset-right))] top-[max(1rem,env(safe-area-inset-top))] z-30 inline-flex h-8 items-center gap-1.5 rounded-md border bg-background px-2.5 text-[13px] font-medium text-muted-foreground shadow-xs transition-[color,background-color,scale] duration-150 ease-out hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring active:scale-[0.96]"
-      >
-        <GithubMark className="size-4" />
-        GitHub
-        {stars !== null && (
-          <>
-            <span aria-hidden className="h-3.5 w-px bg-border" />
-            <Star aria-hidden className="size-3.5" />
-            <span className="tabular-nums">{formatStars(stars)}</span>
-          </>
-        )}
-      </a>
+      <div className="fixed end-[max(1rem,env(safe-area-inset-right))] top-[max(1rem,env(safe-area-inset-top))] z-30 flex items-center gap-2">
+        <a href="https://github.com/sponsors/anishfn" target="_blank" rel="noopener noreferrer" className={`group ${BUTTON}`}>
+          <Heart
+            aria-hidden
+            className="size-4 transition-colors duration-150 ease-out group-hover:fill-pink-500 group-hover:text-pink-500"
+          />
+          Sponsor
+        </a>
+        <a
+          href={`https://github.com/${REPO}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={stars === null ? "Shapeshift on GitHub" : `Shapeshift on GitHub, ${stars} stars`}
+          className={BUTTON}
+        >
+          <GithubMark className="size-4" />
+          GitHub
+          {stars !== null && (
+            <>
+              <span aria-hidden className="bg-border h-3.5 w-px" />
+              <Star aria-hidden className="size-3.5" />
+              <span className="tabular-nums">{formatStars(stars)}</span>
+            </>
+          )}
+        </a>
+      </div>
       <a
         href="https://x.com/anishfn"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed start-[max(1rem,env(safe-area-inset-left))] bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 font-mono text-[12px] leading-4 text-muted-foreground transition-colors duration-150 ease-out hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        className="text-muted-foreground hover:text-foreground focus-visible:outline-ring fixed start-[max(1rem,env(safe-area-inset-left))] bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 font-mono text-[12px] leading-4 transition-colors duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2"
       >
-        made by <span className="underline decoration-border underline-offset-2">anishfn</span>
+        made by <span className="decoration-border underline underline-offset-2">anishfn</span>
       </a>
     </>
   );
