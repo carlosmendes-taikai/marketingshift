@@ -1,5 +1,5 @@
 import { completenessFor } from "@/lib/parse";
-import { ZONES } from "@/lib/parse/timezone";
+import { ZONE_PATTERN } from "@/lib/parse/timezone";
 import {
   type Answer,
   BRANDS,
@@ -27,7 +27,7 @@ const MET_WORD = /^(lead:?|new lead|(i )?(met|spoke (to|with)|talked (to|with)|c
 const IDEA_START =
   /^((content )?idea:?|(we should |i should |let'?s )?(write |make |do |share |record |film )?(a |an )?(linkedin )?(post|carousel|article|blog post|video|reel|thread)s? (about|on))\b/;
 
-const ZONE_WORD = new RegExp(`\\b(${Object.keys(ZONES).sort((a, b) => b.length - a.length).join("|")})\\b`, "g");
+const ZONE_WORD = new RegExp(`\\b(${ZONE_PATTERN})\\b`, "g");
 const CLOCK = /\b\d{1,2}(:\d{2})?\s*(am|pm)\b|\b\d{1,2}:\d{2}\b|\b(noon|midnight)\b/;
 
 type Scores = Partial<Record<IntentKey, number>>;
@@ -58,7 +58,7 @@ function intentScores(raw: string): Scores {
   if (has(/\b\d+\s*(h|hr|hrs|hours?|m|min|mins|minutes?|s|sec|secs|seconds?)\b/, t)) add("timer", 3);
   if (has(/\b(focus|break|rest|nap|deep work)\b/, t) && has(/\d/, t)) add("timer", 2.5);
   // Time zones: two zones, a clock time plus a zone, or "time in tokyo"
-  const zoneHits = t.match(ZONE_WORD)?.length ?? 0;
+  const zoneHits = t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").match(ZONE_WORD)?.length ?? 0;
   if (zoneHits >= 2 && (has(CLOCK, t) || has(/\b(in|to)\b/, t))) add("timezone", 7);
   else if (zoneHits === 1 && (has(CLOCK, t) || has(/\btime\b/, t))) add("timezone", 5.5);
   const listSeps = (t.match(/,|\band\b|&|\n/g) ?? []).length;

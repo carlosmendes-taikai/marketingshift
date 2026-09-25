@@ -151,6 +151,22 @@ describe("timezone", () => {
     expect([tz.from.label, tz.to?.label]).toEqual(["Lisbon", "New York"]);
     expect(formatIn("America/New_York", tz.instant!)).toBe("10:00 AM");
   });
+  test("cities without their own zone name", () => {
+    const tz = parseTimezone("3pm lisbon to rio de janeiro", at);
+    expect([tz.from.label, tz.to?.label]).toEqual(["Lisbon", "Rio de Janeiro"]);
+    expect(formatIn("America/Sao_Paulo", tz.instant!)).toBe("12:00 PM");
+  });
+  test("any world city with its own zone", () => {
+    expect(parseTimezone("3pm lisbon to nairobi", at).to?.tz).toBe("Africa/Nairobi");
+    expect(parseTimezone("9am mexico city to buenos aires", at).to?.label).toBe("Buenos Aires");
+    expect(parseTimezone("10am são paulo in lisbon", at).from.label).toBe("São Paulo");
+  });
+  test("unknown place is flagged, not converted to local time", () => {
+    const tz = parseTimezone("3pm lisbon to atlantis", at);
+    expect(tz.to).toBeNull();
+    expect(tz.unknown).toBe("Atlantis");
+  });
+  test("everyday words are not places", () => expect(parseTimezone("christmas campaign at 3pm", at).to).toBeNull());
   test("single zone after a time is the source", () => expect(parseTimezone("9am london", at).from.label).toBe("London"));
   test("24h clock", () => expect(formatIn("Europe/Paris", parseTimezone("14:30 paris to new york", at).instant!)).toBe("2:30 PM"));
   test("DST-aware wall time", () => {
