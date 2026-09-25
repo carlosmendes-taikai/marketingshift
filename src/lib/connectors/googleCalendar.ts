@@ -10,6 +10,8 @@ type CalendarEntry = {
   minutes: number;
   details?: string;
   location?: string;
+  /** Email addresses prefilled in "Add guests". */
+  guests?: string[];
 };
 
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -29,6 +31,7 @@ export function googleCalendarUrl(entry: CalendarEntry) {
   if (entry.start) params.set("dates", calendarDates(entry.start, entry.hasTime, entry.minutes));
   if (entry.details) params.set("details", entry.details);
   if (entry.location) params.set("location", entry.location);
+  if (entry.guests?.length) params.set("add", entry.guests.join(","));
   return `https://calendar.google.com/calendar/render?${params}`;
 }
 
@@ -41,6 +44,7 @@ export function eventCalendarUrl(d: EventData) {
     minutes: 60,
     details: details || undefined,
     location: d.location ?? d.link ?? undefined,
+    guests: d.guests,
   });
 }
 
@@ -53,8 +57,9 @@ export function leadCalendarUrl(d: LeadData) {
   return googleCalendarUrl({
     title: `Follow up with ${who}`,
     start: d.followUp,
-    hasTime: false,
-    minutes: 0,
+    hasTime: d.followUpHasTime,
+    minutes: 30,
     details: d.interest ? `Interested in: ${d.interest}` : undefined,
+    guests: d.guests,
   });
 }

@@ -86,7 +86,7 @@ export const registry: Registry = {
       [
         [d.name || "Lead", d.company].filter(Boolean).join(", "),
         d.interest,
-        `Follow up ${formatWhen(d.followUp, false).day}`,
+        `Follow up ${Object.values(formatWhen(d.followUp, d.followUpHasTime)).filter(Boolean).join(", ")}`,
       ]
         .filter(Boolean)
         .join(" · "),

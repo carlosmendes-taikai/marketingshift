@@ -48,6 +48,20 @@ describe("Lead follow-up", () => {
   });
 });
 
+describe("Timed follow-up with guests", () => {
+  test("30-minute slot at the given time, guests prefilled", () => {
+    const p = params(leadCalendarUrl(parseLead("met james from acme today, interested in our playbook. follow up with james@acme.com next monday 9 am", REF)));
+    expect(p.get("text")).toBe("Follow up with James (Acme)");
+    const stamp = (x: Date) => x.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+    expect(p.get("dates")).toBe(`${stamp(new Date(2026, 8, 28, 9, 0))}/${stamp(new Date(2026, 8, 28, 9, 30))}`);
+    expect(p.get("add")).toBe("james@acme.com");
+  });
+  test("event guests", () => {
+    const p = params(eventCalendarUrl(parseEvent("call with ana@acme.com and bo@globex.com tuesday 3pm", REF)));
+    expect(p.get("add")).toBe("ana@acme.com,bo@globex.com");
+  });
+});
+
 describe("Card details for Google Sheets", () => {
   test("readable lines, empty fields left out", () => {
     expect(

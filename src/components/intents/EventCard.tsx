@@ -49,17 +49,17 @@ export function EventCard({ data, signals, interactive }: CardProps<EventData>) 
         {place ? <span>{place}</span> : <Placeholder insert=" at ">Add place</Placeholder>}
       </Field>
 
-      <Field index={3} className="flex items-center gap-2">
-        {data.people.length ? (
+      <Field index={3} className="flex flex-wrap items-center gap-2">
+        {data.people.length || data.guests.length ? (
           <>
             <div className="flex -space-x-1.5">
-              {data.people.map((p) => (
+              {[...data.people, ...data.guests].map((p) => (
                 <Avatar key={p} className="size-7 ring-2 ring-card">
                   <AvatarFallback className="bg-secondary text-[11px] font-semibold text-ink-2">{initials(p)}</AvatarFallback>
                 </Avatar>
               ))}
             </div>
-            <span className="text-[15px] text-ink-2">{data.people.join(", ")}</span>
+            <span className="min-w-0 text-[15px] break-all text-ink-2">{[...data.people, ...data.guests].join(", ")}</span>
           </>
         ) : (
           <Placeholder insert=" with ">Add people</Placeholder>

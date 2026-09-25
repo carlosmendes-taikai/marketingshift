@@ -5,6 +5,8 @@ export type EventData = {
   date: Date | null;
   hasTime: boolean;
   people: string[];
+  /** Email addresses in the note, invited as guests. */
+  guests: string[];
   link: string | null;
   location: string | null;
 };
@@ -25,6 +27,10 @@ const STOP = /\s+(?:on|at|in|for|about|to|from|via|over)\s+.*$/i;
 
 export function parseEvent(text: string, ref?: Date): EventData {
   let rest = ` ${collapse(text)} `;
+
+  const EMAIL = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g;
+  const guests = [...new Set(rest.match(EMAIL)?.map((e) => e.toLowerCase()) ?? [])];
+  rest = rest.replace(EMAIL, " ");
 
   const date = findDate(rest, ref);
   if (date) rest = removeRange(rest, date.index, date.text.length);
@@ -64,6 +70,7 @@ export function parseEvent(text: string, ref?: Date): EventData {
     date: date?.start ?? null,
     hasTime: date?.hasTime ?? false,
     people,
+    guests,
     link,
     location,
   };

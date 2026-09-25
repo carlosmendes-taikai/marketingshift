@@ -20,7 +20,7 @@ export const questions = {
   intent: choice("What is the person trying to create with this text", {
     utm: "Building a tracked campaign link: a web address together with a traffic source such as LinkedIn, a newsletter or ads, or a campaign name",
     idea: "Noting an idea for a piece of content to publish, such as a post, carousel, article or video about a topic",
-    lead: "Logging a person they met or spoke with as a potential client or partner, often with their company and what they are interested in",
+    lead: "Logging a person they met or spoke with as a potential client or partner, often with their company, what they are interested in, or when to follow up with them",
     draft: "A social media post to review and grade: a finished draft of several full sentences or paragraphs, or a link to a LinkedIn post (linkedin.com/posts or lnkd.in)",
     metrics: "Reporting the results of a campaign or post with numbers such as money spent, impressions, clicks, leads or sign-ups",
     promo: "Planning how to promote an upcoming event, launch or webinar they are organizing, on a given date",

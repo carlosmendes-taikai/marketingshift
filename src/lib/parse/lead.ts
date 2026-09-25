@@ -7,6 +7,10 @@ export type LeadData = {
   followUp: Date;
   /** False when the follow-up date is the default of three working days. */
   followUpSet: boolean;
+  /** True when a time was given ("monday 9 am"); otherwise the follow-up is all day. */
+  followUpHasTime: boolean;
+  /** Email addresses in the note, invited to the follow-up. */
+  guests: string[];
 };
 
 export const FOLLOW_UP_WORKING_DAYS = 3;
@@ -25,30 +29,48 @@ export function addWorkingDays(from: Date, n: number) {
 const MET = /^(?:lead:?\s*|(?:i\s+)?(?:met|meet|spoke (?:to|with)|talked (?:to|with)|chatted with|call with|coffee with|new lead:?)\s+)/i;
 const INTEREST = /[,;]?\s*\b(?:(?:is |are |was |were )?interested in|wants?(?: to)?|looking for|asked about|keen on|needs?|curious about)\s+(.+)$/i;
 const COMPANY = /\s+(?:from|at|of|@)\s+(.+?)\s*$/i;
-const FOLLOW = /[,;]?\s*\bfollow(?:[- ]?up)?(?:\s+(?:on|by|next))?\s*$/i;
+const EMAIL = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g;
+/** "…, follow up with x next monday 9 am" / "f/u friday" / "reach out tuesday": the part that sets the follow-up. */
+const FOLLOW_CLAUSE = /[.,;]?\s*\b(?:follow(?:ing)?[- ]?up|f\/u|reach out|ping (?:her|him|them)|call (?:her|him|them) back)\b(.*)$/i;
+
+const endOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59);
 
 export function parseLead(text: string, ref: Date = new Date()): LeadData {
-  let rest = ` ${collapse(text)} `;
+  let rest = collapse(text);
 
-  // An explicit follow-up day ("follow up friday") wins over the default.
-  const date = findDate(rest, ref);
-  let followUp = addWorkingDays(ref, FOLLOW_UP_WORKING_DAYS);
-  let followUpSet = false;
-  if (date && date.start.getTime() > ref.getTime()) {
-    followUp = new Date(date.start.getFullYear(), date.start.getMonth(), date.start.getDate());
-    followUpSet = true;
-    rest = removeRange(rest, date.index, date.text.length);
+  const guests = [...new Set(rest.match(EMAIL)?.map((e) => e.toLowerCase()) ?? [])];
+  rest = collapse(rest.replace(EMAIL, " "));
+
+  // The follow-up date comes from the "follow up …" part when there is one, else any future date.
+  let when: { start: Date; hasTime: boolean } | null = null;
+  const clause = rest.match(FOLLOW_CLAUSE);
+  if (clause && clause.index !== undefined) {
+    const hit = findDate(clause[1], ref);
+    if (hit) when = { start: hit.start, hasTime: hit.hasTime };
+    rest = rest.slice(0, clause.index);
   }
-  rest = collapse(rest).replace(FOLLOW, "");
+  // Remove every other date ("met james today") so it doesn't end up in the name or company.
+  for (let i = 0; i < 3; i++) {
+    const hit = findDate(rest, ref);
+    if (!hit) break;
+    if (!when && hit.start > endOfDay(ref)) when = { start: hit.start, hasTime: hit.hasTime };
+    rest = collapse(removeRange(rest, hit.index, hit.text.length));
+  }
+
+  const followUp = when
+    ? when.hasTime
+      ? when.start
+      : new Date(when.start.getFullYear(), when.start.getMonth(), when.start.getDate())
+    : addWorkingDays(ref, FOLLOW_UP_WORKING_DAYS);
 
   let interest: string | null = null;
   const i = rest.match(INTEREST);
   if (i && i.index !== undefined) {
-    interest = capitalize(tidy(i[1].replace(/[.!]+$/, "").replace(/^(?:a|an|the|some)\s+/i, ""))) || null;
+    interest = capitalize(tidy(i[1].replace(/[.!,;]+$/, "").replace(/^(?:a|an|the|some)\s+/i, ""))) || null;
     rest = rest.slice(0, i.index);
   }
 
-  rest = rest.replace(MET, "").replace(/[,;]+\s*$/, "");
+  rest = rest.replace(MET, "").replace(/[.,;]+\s*$/, "");
   let company: string | null = null;
   const c = rest.match(COMPANY);
   if (c && c.index !== undefined) {
@@ -56,7 +78,15 @@ export function parseLead(text: string, ref: Date = new Date()): LeadData {
     rest = rest.slice(0, c.index);
   }
 
-  return { name: titleCase(tidy(rest)), company, interest, followUp, followUpSet };
+  return {
+    name: titleCase(tidy(rest)),
+    company,
+    interest,
+    followUp,
+    followUpSet: when !== null,
+    followUpHasTime: when?.hasTime ?? false,
+    guests,
+  };
 }
 
 export function completeLead(d: LeadData) {

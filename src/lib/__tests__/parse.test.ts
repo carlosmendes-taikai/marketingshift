@@ -319,3 +319,31 @@ describe("A/B test", () => {
     }));
   test("apostrophes are not quotes", () => expect(parseAbTest("cta: what's new vs see what's new").options).toEqual(["what's new", "see what's new"]));
 });
+
+describe("lead follow-up time and guests", () => {
+  test("the example: date and time from the follow-up part, email as guest", () => {
+    const l = parseLead("met james from acme today, interested in our playbook. follow up with james@acme.com next monday 9 am", REF);
+    expect([l.name, l.company, l.interest]).toEqual(["James", "Acme", "Our playbook"]);
+    expect(l.guests).toEqual(["james@acme.com"]);
+    expect(l.followUp).toEqual(new Date(2026, 8, 28, 9, 0));
+    expect([l.followUpSet, l.followUpHasTime]).toEqual([true, true]);
+  });
+  test("a follow-up day without a time stays all day", () => {
+    const l = parseLead("met rui from globex, follow up friday", REF);
+    expect(l.followUp).toEqual(new Date(2026, 8, 25));
+    expect(l.followUpHasTime).toBe(false);
+  });
+  test("no follow-up given: default, all day, no guests", () => {
+    const l = parseLead("met Ana from Acme, interested in a product demo", REF);
+    expect([l.followUpSet, l.followUpHasTime, l.guests]).toEqual([false, false, []]);
+  });
+});
+
+describe("event guests", () => {
+  test("emails become guests, not people", () => {
+    const e = parseEvent("call with sam and ana@acme.com tuesday 3pm on meet", REF);
+    expect(e.guests).toEqual(["ana@acme.com"]);
+    expect(e.people).toEqual(["Sam"]);
+    expect(e.hasTime).toBe(true);
+  });
+});
