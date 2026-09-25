@@ -4,7 +4,7 @@ import { questions, QUESTION_COUNT } from "./questions";
 import type { Answer, IntentResult } from "./types";
 
 const MODEL = process.env.JEV_MODEL || "typesafe-ai/jev";
-// One fast attempt: a stale answer is worse than falling back to the mock.
+// A stale answer is worse than falling back to the mock, so the whole call is capped.
 const TIMEOUT_MS = 3000;
 
 let warned = false;
@@ -50,7 +50,8 @@ export async function classifyWithJev(text: string, signal?: AbortSignal): Promi
     model: MODEL,
     state: { text },
     questions,
-    maxRetries: 0,
+    // One quick retry for the gateway's occasional "temporarily unavailable"; the timeout still caps the wait.
+    maxRetries: 1,
     abortSignal: signal ? AbortSignal.any([signal, timeout]) : timeout,
   });
   const latencyMs = Math.round(performance.now() - started);
