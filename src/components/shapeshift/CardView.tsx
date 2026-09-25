@@ -13,10 +13,13 @@ import { spring, tween } from "@/lib/motion";
 import type { ParsedMap } from "@/lib/parse";
 import type { GatedSignals } from "@/lib/signals";
 import { cn } from "@/lib/utils";
+import { SendToRow } from "./SendToRow";
 
 type Props<K extends CardIntent> = {
   intent: K;
   data: ParsedMap[K];
+  /** The typed text the card was parsed from. */
+  text: string;
   signals: GatedSignals;
   readiness: MotionValue<number>;
   ghost: boolean;
@@ -25,7 +28,7 @@ type Props<K extends CardIntent> = {
   onConfirm: () => void;
 };
 
-export function CardView<K extends CardIntent>({ intent, data, signals, readiness, ghost, editing, onConfirm }: Props<K>) {
+export function CardView<K extends CardIntent>({ intent, data, text, signals, readiness, ghost, editing, onConfirm }: Props<K>) {
   const def = registry[intent];
   const reduce = useReducedMotion();
   const Icon = def.headerIcon?.(signals, data) ?? def.icon;
@@ -77,6 +80,12 @@ export function CardView<K extends CardIntent>({ intent, data, signals, readines
           <Body data={data} signals={signals} interactive={!ghost} />
         </motion.div>
       </AnimatePresence>
+
+      {!ghost && (
+        <motion.div layout="position">
+          <SendToRow intent={intent} data={data} text={text} />
+        </motion.div>
+      )}
 
       <motion.div layout="position" className="flex min-h-8 flex-wrap items-center justify-between gap-2">
         {ghost ? (
