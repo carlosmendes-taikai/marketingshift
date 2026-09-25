@@ -1,4 +1,11 @@
-import { choice, noul, score } from "@typesafe-ai/sdk";
+import type { Experimental_EvaluationQuestion as EvaluationQuestion } from "ai";
+
+// Question builders in the Vercel AI SDK's evaluate format ("noul" is a yes/no question).
+const choice = <const T extends Record<string, string>>(instructions: string, criteria: T) =>
+  ({ type: "choice", instructions, criteria }) as const;
+const score = <const T extends readonly [string, string, ...string[]]>(instructions: string, criteria: T) =>
+  ({ type: "score", instructions, criteria }) as const;
+const noul = (instructions: string) => ({ type: "boolean", instructions }) as const;
 
 /**
  * The full Jev question schema. Jev evaluates every question in parallel against
@@ -97,6 +104,6 @@ export const questions = {
   }),
   hasExplicitOptions: noul("The text names two or more explicit options to pick between"),
   isShoppingList: noul("The listed items are things to buy"),
-};
+} satisfies Record<string, EvaluationQuestion>;
 
 export const QUESTION_COUNT = Object.keys(questions).length;

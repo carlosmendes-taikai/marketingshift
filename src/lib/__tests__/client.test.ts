@@ -12,7 +12,7 @@ describe("API key detection", () => {
   test("copied placeholders → offline", () => {
     expect(looksLikeKey("sk-...")).toBe(false);
     expect(looksLikeKey("your-api-key-here")).toBe(false);
-    expect(looksLikeKey("<TYPESAFE_API_KEY>")).toBe(false);
+    expect(looksLikeKey("<AI_GATEWAY_API_KEY>")).toBe(false);
   });
   test("a real-looking key → online", () => {
     expect(looksLikeKey("sk-live-8f2c1a9b7d6e5f40")).toBe(true);

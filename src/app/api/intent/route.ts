@@ -1,4 +1,4 @@
-import { APIUserAbortError, classifierMode, classifyWithJev, warnMockOnce } from "@/lib/jev/client";
+import { classifierMode, classifyWithJev, warnMockOnce } from "@/lib/jev/client";
 import { mockClassify } from "@/lib/jev/mock";
 import { type IntentResult, intentRequestSchema, noneResult } from "@/lib/jev/types";
 import { LRU, normalizeKey } from "@/lib/lru";
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     cache.set(key, result);
     return Response.json(result);
   } catch (err) {
-    if (err instanceof APIUserAbortError || request.signal.aborted) {
+    if (request.signal.aborted) {
       return new Response(null, { status: 499 });
     }
     const status = typeof err === "object" && err && "status" in err ? (err as { status: number }).status : undefined;

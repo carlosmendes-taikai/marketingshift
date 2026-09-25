@@ -1,6 +1,8 @@
-import { Heart, Star } from "lucide-react";
+import { Star } from "lucide-react";
 
-const REPO = "anishfn/shapeshift";
+const REPO = "carlosmendes-taikai/marketingshift";
+// Marketingshift is a fork of Shapeshift (MIT). Keep this credit.
+const ORIGINAL_REPO = "anishfn/shapeshift";
 
 // Star count refreshes hourly; a failed fetch just hides the number.
 async function getStars(): Promise<number | null> {
@@ -34,19 +36,18 @@ export async function SiteChrome() {
   const stars = await getStars();
   return (
     <>
+      <p
+        aria-hidden
+        className="text-foreground fixed start-[max(1rem,env(safe-area-inset-left))] top-[max(1rem,env(safe-area-inset-top))] z-30 flex h-8 items-center text-[14px] font-[550] tracking-[-0.01em]"
+      >
+        Marketingshift
+      </p>
       <div className="fixed end-[max(1rem,env(safe-area-inset-right))] top-[max(1rem,env(safe-area-inset-top))] z-30 flex items-center gap-2">
-        <a href="https://github.com/sponsors/anishfn" target="_blank" rel="noopener noreferrer" className={`group ${BUTTON}`}>
-          <Heart
-            aria-hidden
-            className="size-4 transition-colors duration-150 ease-out group-hover:fill-pink-500 group-hover:text-pink-500"
-          />
-          Sponsor
-        </a>
         <a
           href={`https://github.com/${REPO}`}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label={stars === null ? "Shapeshift on GitHub" : `Shapeshift on GitHub, ${stars} stars`}
+          aria-label={stars === null ? "Marketingshift on GitHub" : `Marketingshift on GitHub, ${stars} stars`}
           className={BUTTON}
         >
           <GithubMark className="size-4" />
@@ -61,12 +62,12 @@ export async function SiteChrome() {
         </a>
       </div>
       <a
-        href="https://x.com/anishfn"
+        href={`https://github.com/${ORIGINAL_REPO}`}
         target="_blank"
         rel="noopener noreferrer"
         className="text-muted-foreground hover:text-foreground focus-visible:outline-ring fixed start-[max(1rem,env(safe-area-inset-left))] bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 font-mono text-[12px] leading-4 transition-colors duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2"
       >
-        made by <span className="decoration-border underline underline-offset-2">anishfn</span>
+        Based on <span className="decoration-border underline underline-offset-2">Shapeshift by anishfn</span>
       </a>
     </>
   );

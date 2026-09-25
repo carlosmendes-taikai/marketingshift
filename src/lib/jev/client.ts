@@ -1,9 +1,12 @@
 import "server-only";
-import { APIUserAbortError, TypeSafeClient } from "@typesafe-ai/sdk";
+import { experimental_evaluate as evaluate } from "ai";
 import { questions, QUESTION_COUNT } from "./questions";
 import type { Answer, IntentResult } from "./types";
 
-let client: TypeSafeClient | null = null;
+const MODEL = process.env.JEV_MODEL || "typesafe-ai/jev";
+// One fast attempt: a stale answer is worse than falling back to the mock.
+const TIMEOUT_MS = 3000;
+
 let warned = false;
 
 /** A real-looking key: not empty and not a copied placeholder like "sk-..." or "your-key-here". */
@@ -13,66 +16,74 @@ export function looksLikeKey(key: string | undefined): key is string {
 }
 
 /**
- * Offline by default. The online Jev model is used only when a real API key is set,
- * and NEXT_PUBLIC_USE_MOCK=true can still force offline for UI work and demos.
+ * Offline by default. Jev runs through the Vercel AI Gateway when an AI Gateway key is set
+ * (or, on Vercel, when the project's OIDC token is available). NEXT_PUBLIC_USE_MOCK=true
+ * can still force offline for UI work and demos.
  */
 export function classifierMode(): { mode: "online" | "offline"; reason: string } {
   if (process.env.NEXT_PUBLIC_USE_MOCK === "true") return { mode: "offline", reason: "NEXT_PUBLIC_USE_MOCK=true" };
-  if (!looksLikeKey(process.env.TYPESAFE_API_KEY)) return { mode: "offline", reason: "no TYPESAFE_API_KEY set" };
-  return { mode: "online", reason: `using ${process.env.JEV_MODEL || "jev-latest"}` };
+  if (!looksLikeKey(process.env.AI_GATEWAY_API_KEY) && !process.env.VERCEL_OIDC_TOKEN) {
+    return { mode: "offline", reason: "no AI_GATEWAY_API_KEY set" };
+  }
+  return { mode: "online", reason: `using ${MODEL} via AI Gateway` };
 }
 
 export function warnMockOnce(reason: string) {
   if (warned) return;
   warned = true;
-  console.info(`[shapeshift] Offline classifier (jev-offline): ${reason}. Add a TypeSafe key to .env.local to go online.`);
+  console.info(`[marketingshift] Offline classifier (jev-offline): ${reason}. Add an AI Gateway key to .env.local to go online.`);
 }
 
-function getClient() {
-  if (!client) {
-    client = new TypeSafeClient({
-      defaultModel: process.env.JEV_MODEL || "jev-latest",
-      // One fast attempt: a stale answer is worse than falling back to the mock.
-      retry: { maxRetries: 0 },
-      timeout: 2500,
-    });
-  }
-  return client;
+/** 1 when all probability sits on one option, 0 when it is spread evenly. Used if the gateway reports no confidence. */
+function concentration(probabilities: Record<string, number> | undefined) {
+  const values = Object.values(probabilities ?? {});
+  if (values.length < 2) return 0;
+  const peak = Math.max(...values);
+  return Math.max(0, Math.min(1, (values.length * peak - 1) / (values.length - 1)));
 }
 
-function answer<T extends string>(r: { choice: T; confidence: number; probabilities: { readonly [k in T]: number } }): Answer<T> {
-  return { value: r.choice, confidence: r.confidence, probabilities: { ...r.probabilities } as Partial<Record<T, number>> };
-}
-
-/** One call, every question in parallel. Throws on network / API errors. */
+/** One call, every question in parallel. Throws on network / API errors and timeouts. */
 export async function classifyWithJev(text: string, signal?: AbortSignal): Promise<IntentResult> {
   const started = performance.now();
-  const res = await getClient().systemOne({ state: { text }, questions }, { signal });
+  const timeout = AbortSignal.timeout(TIMEOUT_MS);
+  const res = await evaluate({
+    model: MODEL,
+    state: { text },
+    questions,
+    maxRetries: 0,
+    abortSignal: signal ? AbortSignal.any([signal, timeout]) : timeout,
+  });
   const latencyMs = Math.round(performance.now() - started);
   const a = res.answers;
+  const reported = res.providerMetadata?.typesafe?.confidence as Record<string, number> | undefined;
+  const confidence = (id: keyof typeof questions, probabilities?: Record<string, number>) =>
+    reported?.[id] ?? concentration(probabilities);
+
+  function answer<T extends string>(id: keyof typeof questions, r: { choice: T; probabilities?: Record<T, number> }): Answer<T> {
+    const probabilities = r.probabilities ?? ({ [r.choice]: 1 } as Record<T, number>);
+    return { value: r.choice, confidence: confidence(id, probabilities), probabilities: { ...probabilities } };
+  }
 
   return {
-    intent: answer(a.intent),
+    intent: answer("intent", a.intent),
     readiness: a.readiness.score,
     signals: {
-      isQuestion: a.isQuestion.noul,
-      recurring: a.recurring.noul,
-      urgency: { score: a.urgency.score, confidence: a.urgency.confidence },
-      tone: answer(a.tone),
-      eventMode: answer(a.eventMode),
-      transport: answer(a.transport),
-      tripType: answer(a.tripType),
-      expenseCategory: answer(a.expenseCategory),
-      colorMood: answer(a.colorMood),
-      timerKind: answer(a.timerKind),
-      hasExplicitOptions: a.hasExplicitOptions.noul,
-      isShoppingList: a.isShoppingList.noul,
+      isQuestion: a.isQuestion.probability,
+      recurring: a.recurring.probability,
+      urgency: { score: a.urgency.score, confidence: confidence("urgency", a.urgency.probabilities) },
+      tone: answer("tone", a.tone),
+      eventMode: answer("eventMode", a.eventMode),
+      transport: answer("transport", a.transport),
+      tripType: answer("tripType", a.tripType),
+      expenseCategory: answer("expenseCategory", a.expenseCategory),
+      colorMood: answer("colorMood", a.colorMood),
+      timerKind: answer("timerKind", a.timerKind),
+      hasExplicitOptions: a.hasExplicitOptions.probability,
+      isShoppingList: a.isShoppingList.probability,
     },
     latencyMs,
     questionCount: QUESTION_COUNT,
-    model: res.model,
+    model: res.response.modelId || MODEL,
     source: "jev",
   };
 }
-
-export { APIUserAbortError };

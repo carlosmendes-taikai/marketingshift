@@ -1,11 +1,13 @@
-# Shapeshift
+# Marketingshift
 
-**An input that becomes what you mean.** One text box that morphs into the right UI as you type — an event card, a checklist, a timer, a color picker, a bill splitter, a poll, a converter and more.
+**One text box for a marketer's day.** Type a note and it turns into the right card as you type: an event, a reminder, a checklist, a poll and more.
+
+Marketingshift is a fork of [Shapeshift](https://github.com/anishfn/shapeshift) by [anishfn](https://github.com/anishfn), released under the MIT license. All credit for the original idea, design and code goes to them.
 
 <p align="center">
   <img src="docs/demo.gif" alt="Typing 'dinner with priya friday 8pm on zoom' morphs the text box into an event card, then a shopping checklist" width="820">
   <br>
-  <sub><a href="https://shapeshiftui.vercel.app"><b>Try it live</b></a> · <a href="docs/demo.mp4">Watch the full 60-second demo (1080p60)</a></sub>
+  <sub>Demo of the original Shapeshift · <a href="docs/demo.mp4">Watch the full 60-second demo (1080p60)</a></sub>
 </p>
 
 ```
@@ -15,7 +17,7 @@ split 2400 between 3                   →  ₹800 each
 minecraft diamond                      →  #4AEDD9
 ```
 
-Intent is classified by [TypeSafe AI](https://typesafe.ai)'s **Jev** model: one call answers 14 typed questions in parallel (which card, plus signals like "is it a video call?", "is it urgent?"). Everything else — dates, amounts, units, math — is deterministic code. **Jev decides, code computes.**
+Intent is classified by [TypeSafe AI](https://typesafe.ai)'s **Jev** model, called through the [Vercel AI Gateway](https://vercel.com/ai-gateway) with the AI SDK's `experimental_evaluate`: one call answers 14 typed questions in parallel (which card, plus signals like "is it a video call?", "is it urgent?"). Everything else — dates, amounts, units, math — is deterministic code. **Jev decides, code computes.**
 
 <p align="center"><img src="docs/diagrams/jev-fanout.svg" alt="One Jev call answers 14 questions in parallel; a deterministic parser reads the same text for values" width="820"></p>
 
@@ -36,15 +38,15 @@ Open http://localhost:3000 and start typing. Press <kbd>/</kbd> to see every car
 
 ```bash
 cp .env.example .env.local
-# then set TYPESAFE_API_KEY=... (get one at https://console.typesafe.ai/keys)
+# then set AI_GATEWAY_API_KEY=... (Vercel dashboard → AI Gateway → API keys)
 ```
 
-Restart `bun dev`. The latency readout in the bottom-right corner switches from `jev-offline` to `jev-1.13.0`. The key is only ever read on the server (`/api/intent`); it never reaches the browser. If the API is unreachable or rate-limited, Shapeshift quietly falls back to offline mode.
+Restart `bun dev`. The latency readout in the bottom-right corner switches from `jev-offline` to `typesafe-ai/jev`. The key is only ever read on the server (`/api/intent`); it never reaches the browser. On Vercel, the project's OIDC token also works. If the gateway is unreachable, slow or rate-limited, Marketingshift quietly falls back to offline mode.
 
 | Variable | Default | What it does |
 | --- | --- | --- |
-| `TYPESAFE_API_KEY` | _(empty)_ | Enables the online model. Empty or placeholder values keep you offline. |
-| `JEV_MODEL` | `jev-1.13.0` | Pinned model version. |
+| `AI_GATEWAY_API_KEY` | _(empty)_ | Enables the online model via the Vercel AI Gateway. Empty or placeholder values keep you offline. |
+| `JEV_MODEL` | `typesafe-ai/jev` | Model id on the AI Gateway. |
 | `NEXT_PUBLIC_USE_MOCK` | `false` | `true` forces offline even with a key. |
 | `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | Used for Open Graph metadata. |
 
@@ -125,6 +127,6 @@ bun run build
 
 Stack: Next.js (App Router) · React 19 · TypeScript (strict) · Tailwind CSS v4 · shadcn/ui · Motion · chrono-node · zod.
 
-## License
+## Credits and license
 
-[MIT](LICENSE)
+Based on [Shapeshift](https://github.com/anishfn/shapeshift) by [anishfn](https://github.com/anishfn). [MIT](LICENSE); the original copyright notice is kept in the LICENSE file.

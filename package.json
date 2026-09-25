@@ -1,5 +1,5 @@
 {
-  "name": "shapeshift",
+  "name": "marketingshift",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -13,7 +13,7 @@
     "check": "bun run typecheck && bun run lint && bun test"
   },
   "dependencies": {
-    "@typesafe-ai/sdk": "^0.6.0",
+    "ai": "^7.0.114",
     "chrono-node": "^2.10.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -57,6 +57,6 @@
     "sharp",
     "unrs-resolver"
   ],
-  "description": "An input that becomes what you mean: one text box that morphs into the right UI as you type.",
+  "description": "One text box for a marketer's day that turns into the right card as you type. Based on Shapeshift by anishfn.",
   "license": "MIT"
 }
