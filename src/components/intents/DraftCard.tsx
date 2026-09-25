@@ -71,7 +71,7 @@ export function DraftCard({ data, interactive }: CardProps<DraftData>) {
         ) : !grade.result ? (
           <p className="flex items-center gap-2 py-1.5 text-[14px] text-muted-foreground">
             <LoaderCircle className="size-4 animate-spin" aria-hidden />
-            {interactive ? "Jev is reading your post" : "Jev will grade this post"}
+            {!interactive ? "Jev will grade this post" : grade.busy ? "Jev is busy, trying again" : "Jev is reading your post"}
           </p>
         ) : (
           <>

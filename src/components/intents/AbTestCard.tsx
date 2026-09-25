@@ -66,7 +66,7 @@ export function AbTestCard({ data, interactive }: CardProps<AbTestData>) {
           ) : !result ? (
             <p className="flex items-center gap-2 text-[14px] text-muted-foreground">
               <LoaderCircle className="size-4 animate-spin" aria-hidden />
-              {interactive ? "Jev is comparing the options" : "Jev will pick a winner"}
+              {!interactive ? "Jev will pick a winner" : grade.busy ? "Jev is busy, trying again" : "Jev is comparing the options"}
             </p>
           ) : (
             <Meta>

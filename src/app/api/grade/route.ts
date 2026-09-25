@@ -48,7 +48,12 @@ export async function POST(request: Request) {
   } catch (err) {
     if (request.signal.aborted) return new Response(null, { status: 499 });
     if (err instanceof LinkedInError) return Response.json({ error: err.message }, { status: 422 });
-    console.warn(`[grade] failed: ${err instanceof Error ? err.message : String(err)}`);
+    const message = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
+    console.warn(`[grade] failed: ${message}`);
+    // Jev's provider is overloaded or briefly down: tell the card it's worth retrying on its own.
+    if (/RateLimit|high demand|temporarily unavailable|timeout|aborted/i.test(message)) {
+      return Response.json({ error: "Jev is very busy right now. Try again in a moment.", busy: true }, { status: 503 });
+    }
     return Response.json({ error: "Jev could not grade this right now. Try again in a moment." }, { status: 502 });
   }
 }
