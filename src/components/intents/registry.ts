@@ -44,7 +44,7 @@ import { formatWhen } from "./shared";
 import { TimerRing } from "./TimerRing";
 import { TimezoneCard } from "./TimezoneCard";
 import { TodoList } from "./TodoList";
-import type { BadgeSpec, Registry } from "./types";
+import type { BadgeSpec, CardGroup, Registry } from "./types";
 import { UtmCard } from "./UtmCard";
 
 const repeats = (s: GatedSignals): BadgeSpec[] => (s.recurring ? [{ id: "repeat", label: "Repeats", icon: Repeat }] : []);
@@ -58,6 +58,7 @@ const urgent = (s: GatedSignals): BadgeSpec[] => (s.urgent ? [{ id: "urgent", la
 export const registry: Registry = {
   utm: {
     label: "UTM link",
+    group: "marketing",
     example: "linkedin campaign october hacker house taikai.network/hh2",
     icon: Tags,
     signals: [],
@@ -66,6 +67,7 @@ export const registry: Registry = {
   },
   idea: {
     label: "Content idea",
+    group: "marketing",
     example: "post about how we ran hacker house with dehouse",
     icon: Lightbulb,
     signals: ["brand", "contentFormat"],
@@ -76,6 +78,7 @@ export const registry: Registry = {
   },
   lead: {
     label: "Lead",
+    group: "marketing",
     example: "met Ana from Sonae, interested in AI workshop",
     icon: UserRound,
     signals: [],
@@ -91,6 +94,7 @@ export const registry: Registry = {
   },
   draft: {
     label: "Post draft",
+    group: "marketing",
     example: "Paste a LinkedIn draft or a post link",
     icon: FileText,
     signals: [],
@@ -99,6 +103,7 @@ export const registry: Registry = {
   },
   metrics: {
     label: "Campaign results",
+    group: "marketing",
     example: "linkedin ads 500 spent, 12k impressions, 340 clicks, 25 leads",
     icon: BarChart3,
     signals: [],
@@ -114,6 +119,7 @@ export const registry: Registry = {
   },
   promo: {
     label: "Event promo plan",
+    group: "marketing",
     example: "promote hacker house on nov 15",
     icon: Megaphone,
     signals: [],
@@ -125,6 +131,7 @@ export const registry: Registry = {
   },
   abtest: {
     label: "A/B test",
+    group: "marketing",
     example: "subject: \"Your hacker house recap\" vs \"What 40 builders shipped in 48h\"",
     icon: Split,
     signals: [],
@@ -133,6 +140,7 @@ export const registry: Registry = {
   },
   event: {
     label: "Event",
+    group: "utility",
     example: "call with the dehouse team tuesday 3pm on meet",
     icon: CalendarDays,
     signals: ["eventMode", "recurring"],
@@ -142,6 +150,7 @@ export const registry: Registry = {
   },
   reminder: {
     label: "Reminder",
+    group: "utility",
     example: "remind me to send the newsletter friday 9am",
     icon: Bell,
     signals: ["urgency", "recurring"],
@@ -152,6 +161,7 @@ export const registry: Registry = {
   },
   todo: {
     label: "Checklist",
+    group: "utility",
     example: "launch checklist: brief, visuals, landing page, emails",
     icon: ListChecks,
     signals: ["isShoppingList", "urgency"],
@@ -163,6 +173,7 @@ export const registry: Registry = {
   },
   timer: {
     label: "Timer",
+    group: "utility",
     example: "25 min focus",
     icon: Timer,
     signals: ["timerKind"],
@@ -173,6 +184,7 @@ export const registry: Registry = {
   },
   calc: {
     label: "Calculate",
+    group: "utility",
     example: "18% of 3450",
     icon: Calculator,
     signals: [],
@@ -181,6 +193,7 @@ export const registry: Registry = {
   },
   contact: {
     label: "Contact",
+    group: "utility",
     example: "ana silva +351 912 345 678 ana@sonae.pt",
     icon: Contact,
     signals: [],
@@ -189,6 +202,7 @@ export const registry: Registry = {
   },
   link: {
     label: "Bookmark",
+    group: "utility",
     example: "https://vercel.com/blog check later",
     icon: Link2,
     signals: [],
@@ -197,6 +211,7 @@ export const registry: Registry = {
   },
   timezone: {
     label: "Time zone",
+    group: "utility",
     example: "3pm lisbon in new york",
     icon: Globe,
     signals: [],
@@ -207,6 +222,11 @@ export const registry: Registry = {
 };
 
 export const CARD_INTENTS = Object.keys(registry) as CardIntent[];
+
+export const CARD_GROUPS: { id: CardGroup; label: string }[] = [
+  { id: "marketing", label: "Marketing" },
+  { id: "utility", label: "Utility" },
+];
 
 /** A card label mid-sentence: "Add content idea", but acronyms stay as written: "Add UTM link". */
 export const inSentence = (label: string) => (/^[A-Z][A-Z/]/.test(label) ? label : label.charAt(0).toLowerCase() + label.slice(1));

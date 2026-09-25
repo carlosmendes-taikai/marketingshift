@@ -13,8 +13,12 @@ export type CardProps<D> = {
 
 export type BadgeSpec = { id: string; label: string; icon?: LucideIcon; tone?: "caution" | "brand" };
 
+export type CardGroup = "marketing" | "utility";
+
 export type IntentDef<K extends CardIntent> = {
   label: string;
+  /** Section in the "/" palette. */
+  group: CardGroup;
   example: string;
   icon: LucideIcon;
   /** Signals this intent reads (section 7.3). Everything else is ignored. */

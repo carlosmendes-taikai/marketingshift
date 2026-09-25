@@ -1,6 +1,6 @@
 "use client";
 
-import { CARD_INTENTS, registry } from "@/components/intents/registry";
+import { CARD_GROUPS, CARD_INTENTS, registry } from "@/components/intents/registry";
 import { Command, CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import type { CardIntent } from "@/lib/jev/types";
 
@@ -30,26 +30,28 @@ export function IntentPalette({
         <CommandInput placeholder="Show as…" className="text-base sm:text-sm" />
         <CommandList className="max-h-[420px] overscroll-contain">
           <CommandEmpty>No card type matches. Try “lead” or “UTM”.</CommandEmpty>
-          <CommandGroup>
-            {CARD_INTENTS.map((intent) => {
-              const def = registry[intent];
-              const Icon = def.icon;
-              return (
-                <CommandItem
-                  key={intent}
-                  value={`${def.label} ${intent} ${def.example}`}
-                  onSelect={() => onPick(intent)}
-                  className="min-h-12 gap-3"
-                >
-                  <span className="bg-secondary text-foreground grid size-8 shrink-0 place-items-center rounded-sm">
-                    <Icon className="size-[18px]" aria-hidden />
-                  </span>
-                  <span className="w-24 shrink-0 text-[14px] font-medium">{def.label}</span>
-                  <span className="text-muted-foreground min-w-0 text-[13px] text-pretty">{def.example}</span>
-                </CommandItem>
-              );
-            })}
-          </CommandGroup>
+          {CARD_GROUPS.map((group) => (
+            <CommandGroup key={group.id} heading={group.label}>
+              {CARD_INTENTS.filter((intent) => registry[intent].group === group.id).map((intent) => {
+                const def = registry[intent];
+                const Icon = def.icon;
+                return (
+                  <CommandItem
+                    key={intent}
+                    value={`${def.label} ${intent} ${def.example}`}
+                    onSelect={() => onPick(intent)}
+                    className="min-h-12 gap-3"
+                  >
+                    <span className="bg-secondary text-foreground grid size-8 shrink-0 place-items-center rounded-sm">
+                      <Icon className="size-[18px]" aria-hidden />
+                    </span>
+                    <span className="w-32 shrink-0 text-[14px] font-medium">{def.label}</span>
+                    <span className="text-muted-foreground min-w-0 text-[13px] text-pretty">{def.example}</span>
+                  </CommandItem>
+                );
+              })}
+            </CommandGroup>
+          ))}
         </CommandList>
       </Command>
     </CommandDialog>
