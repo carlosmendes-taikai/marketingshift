@@ -4,7 +4,7 @@ The "Send to Google Sheets" button appends each card as a row in a Google Sheet.
 
 ## Setup
 
-1. Create a Google Sheet (for example "Marketingshift cards").
+1. Create a Google Sheet (for example "unfold cards").
 2. Open **Extensions → Apps Script**, delete what is there and paste the script below. Save.
 3. Click **Deploy → New deployment**, pick the type **Web app**, set **Execute as: Me** and **Who has access: Anyone**, then **Deploy** and authorize. `@OnlyCurrentDoc` limits the script to this one sheet; "Anyone" only lets callers add rows, not read the sheet.
 4. Copy the **Web app URL** (`https://script.google.com/macros/s/.../exec`) and set it as `SHEETS_WEBHOOK_URL` on the server (Vercel project settings and `.env.local`).

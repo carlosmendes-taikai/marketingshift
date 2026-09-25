@@ -1,7 +1,7 @@
 import { Star } from "lucide-react";
 
 const REPO = "carlosmendes-taikai/marketingshift";
-// Marketingshift is a fork of Shapeshift (MIT). Keep this credit.
+// unfold is a fork of Shapeshift (MIT). Keep this credit.
 const ORIGINAL_REPO = "anishfn/shapeshift";
 
 // Star count refreshes hourly; a failed fetch just hides the number.
@@ -38,16 +38,16 @@ export async function SiteChrome() {
     <>
       <p
         aria-hidden
-        className="text-foreground fixed start-[max(1rem,env(safe-area-inset-left))] top-[max(1rem,env(safe-area-inset-top))] z-30 flex h-8 items-center text-[14px] font-[550] tracking-[-0.01em]"
+        className="text-foreground fixed start-[max(1rem,env(safe-area-inset-left))] top-[max(1rem,env(safe-area-inset-top))] z-30 flex h-8 items-center text-[19px] font-semibold tracking-[-0.02em] [font-stretch:78%]"
       >
-        Marketingshift
+        unfold
       </p>
       <div className="fixed end-[max(1rem,env(safe-area-inset-right))] top-[max(1rem,env(safe-area-inset-top))] z-30 flex items-center gap-2">
         <a
           href={`https://github.com/${REPO}`}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label={stars === null ? "Marketingshift on GitHub" : `Marketingshift on GitHub, ${stars} stars`}
+          aria-label={stars === null ? "unfold on GitHub" : `unfold on GitHub, ${stars} stars`}
           className={BUTTON}
         >
           <GithubMark className="size-4" />

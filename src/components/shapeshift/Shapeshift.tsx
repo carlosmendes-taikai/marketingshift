@@ -291,7 +291,7 @@ export function Shapeshift() {
   return (
     <MotionConfig reducedMotion="user">
       <main id="main" className="mx-auto w-full max-w-[560px] px-4 pt-[14vh] pb-24 sm:px-0 sm:pt-[22vh]">
-        <h1 className="sr-only">Marketingshift</h1>
+        <h1 className="sr-only">unfold</h1>
         <MorphContainer readiness={readiness} edge={ghost ? null : (meta?.edge ?? null)}>
           <motion.div layout="position" className="relative flex min-h-[72px] items-start px-5 py-5">
             <textarea

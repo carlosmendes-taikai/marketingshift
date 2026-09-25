@@ -1,8 +1,8 @@
-# Marketingshift
+# unfold
 
 **One text box for a marketer's day.** Type a note and it turns into the right card as you type: an event, a reminder, a checklist, a poll and more.
 
-Marketingshift is a fork of [Shapeshift](https://github.com/anishfn/shapeshift) by [anishfn](https://github.com/anishfn), released under the MIT license. All credit for the original idea, design and code goes to them.
+unfold is a fork of [Shapeshift](https://github.com/anishfn/shapeshift) by [anishfn](https://github.com/anishfn), released under the MIT license. All credit for the original idea, design and code goes to them.
 
 <p align="center">
   <img src="docs/demo.gif" alt="Typing 'dinner with priya friday 8pm on zoom' morphs the text box into an event card, then a shopping checklist" width="820">
@@ -41,7 +41,7 @@ cp .env.example .env.local
 # then set AI_GATEWAY_API_KEY=... (Vercel dashboard → AI Gateway → API keys)
 ```
 
-Restart `bun dev`. The latency readout in the bottom-right corner switches from `jev-offline` to `typesafe-ai/jev`. The key is only ever read on the server (`/api/intent`); it never reaches the browser. On Vercel, the project's OIDC token also works. If the gateway is unreachable, slow or rate-limited, Marketingshift quietly falls back to offline mode.
+Restart `bun dev`. The latency readout in the bottom-right corner switches from `jev-offline` to `typesafe-ai/jev`. The key is only ever read on the server (`/api/intent`); it never reaches the browser. On Vercel, the project's OIDC token also works. If the gateway is unreachable, slow or rate-limited, unfold quietly falls back to offline mode.
 
 | Variable | Default | What it does |
 | --- | --- | --- |

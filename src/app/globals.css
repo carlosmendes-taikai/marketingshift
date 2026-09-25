@@ -35,7 +35,7 @@
   --radius-3xl: 28px;
   --radius-4xl: 9999px;
 
-  /* Shapeshift extras */
+  /* App extras */
   --color-brand: var(--brand);
   --color-brand-soft: var(--brand-soft);
   --color-ink-2: var(--ink-2);
@@ -43,9 +43,9 @@
   --color-positive: var(--positive);
   --color-caution: var(--caution);
   --color-caution-text: var(--caution-text);
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui;
-  --font-mono: var(--font-geist-mono), ui-monospace;
-  --font-heading: var(--font-geist-sans), ui-sans-serif, system-ui;
+  --font-sans: var(--font-app-sans), ui-sans-serif, system-ui;
+  --font-mono: var(--font-app-mono), ui-monospace;
+  --font-heading: var(--font-app-sans), ui-sans-serif, system-ui;
   --radius-shell: var(--radius-2xl);
 
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
@@ -54,39 +54,40 @@
 :root {
   --radius: 0.75rem;
 
-  --background: #fafaf9;
-  --foreground: #1a1a19;
-  --card: #ffffff;
-  --card-foreground: #1a1a19;
-  --popover: #ffffff;
-  --popover-foreground: #1a1a19;
+  /* Warm cream paper, warm greys and a forest green accent. Every text color is ≥4.5:1 on page, card and secondary. */
+  --background: #f5efe3;
+  --foreground: #1e1a14;
+  --card: #fffcf6;
+  --card-foreground: #1e1a14;
+  --popover: #fffcf6;
+  --popover-foreground: #1e1a14;
 
-  --primary: #1a1a19;
-  --primary-foreground: #fafaf9;
-  --secondary: #f4f4f2;
-  --secondary-foreground: #1a1a19;
-  --muted: #f4f4f2;
-  --muted-foreground: #706e68; /* was #8f8d86 (3.0–3.3:1); now ≥4.6:1 on card, page and secondary */
-  --accent: #eef1fd;
-  --accent-foreground: #3b5bdb;
-  --destructive: #e03131;
+  --primary: #1e1a14;
+  --primary-foreground: #f5efe3;
+  --secondary: #efe7d7;
+  --secondary-foreground: #1e1a14;
+  --muted: #efe7d7;
+  --muted-foreground: #6b6252;
+  --accent: #e1ede4;
+  --accent-foreground: #2f6b4f;
+  --destructive: #c92a2a;
 
-  --border: #e8e7e4;
-  --input: #e8e7e4;
-  --ring: #3b5bdb;
+  --border: #e6dcc9;
+  --input: #e6dcc9;
+  --ring: #2f6b4f;
 
-  --brand: #3b5bdb;
-  --brand-soft: #eef1fd;
-  --ink-2: #57564f;
-  --line-strong: #d6d4cf;
-  --positive: #2f9e44;
-  --caution: #e8590c;
-  --caution-text: #bb4c19; /* caution hue at text contrast: 4.6:1 on the caution tint */
-  --swatch-outline: rgb(26 26 25 / 0.06);
+  --brand: #2f6b4f;
+  --brand-soft: #e1ede4;
+  --ink-2: #504838;
+  --line-strong: #d4c7ae;
+  --positive: #2f6b4f;
+  --caution: #d9570f;
+  --caution-text: #b0461a; /* 4.5:1 on the caution tint */
+  --swatch-outline: rgb(30 26 20 / 0.06);
 
-  --shadow-rest: 0 1px 2px rgb(26 26 25 / 0.04), 0 1px 1px rgb(26 26 25 / 0.03);
-  --shadow-lift: 0 1px 2px rgb(26 26 25 / 0.04), 0 8px 24px -6px rgb(26 26 25 / 0.08);
-  --shadow-float: 0 2px 4px rgb(26 26 25 / 0.04), 0 20px 48px -12px rgb(26 26 25 / 0.14);
+  --shadow-rest: 0 1px 2px rgb(60 45 20 / 0.05), 0 1px 1px rgb(60 45 20 / 0.03);
+  --shadow-lift: 0 1px 2px rgb(60 45 20 / 0.05), 0 8px 24px -6px rgb(60 45 20 / 0.1);
+  --shadow-float: 0 2px 4px rgb(60 45 20 / 0.05), 0 20px 48px -12px rgb(60 45 20 / 0.16);
 
   color-scheme: light;
 }
@@ -101,7 +102,8 @@
   body {
     @apply bg-background text-foreground;
     -webkit-font-smoothing: antialiased;
-    font-feature-settings: "ss01", "cv11";
+    /* Instrument Sans: tabular-friendly figures stay on; no Geist-only stylistic sets. */
+    font-feature-settings: "kern";
   }
   button:not(:disabled),
   [role="button"]:not(:disabled) {

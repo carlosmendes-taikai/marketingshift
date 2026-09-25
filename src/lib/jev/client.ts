@@ -31,7 +31,7 @@ export function classifierMode(): { mode: "online" | "offline"; reason: string }
 export function warnMockOnce(reason: string) {
   if (warned) return;
   warned = true;
-  console.info(`[marketingshift] Offline classifier (jev-offline): ${reason}. Add an AI Gateway key to .env.local to go online.`);
+  console.info(`[unfold] Offline classifier (jev-offline): ${reason}. Add an AI Gateway key to .env.local to go online.`);
 }
 
 /** 1 when all probability sits on one option, 0 when it is spread evenly. Used if the gateway reports no confidence. */
