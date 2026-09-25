@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarPlus, Check, LoaderCircle, Zap } from "lucide-react";
+import { CalendarPlus, Check, LoaderCircle, Sheet } from "lucide-react";
 import { useState } from "react";
 import { registry } from "@/components/intents/registry";
 import { Button } from "@/components/ui/button";
@@ -19,28 +19,28 @@ function calendarUrl<K extends CardIntent>(intent: K, data: ParsedMap[K]) {
 
 /** Hand the current card to another app. Each connector is one button. */
 export function SendToRow<K extends CardIntent>({ intent, data, text }: Props<K>) {
-  const [zapier, setZapier] = useState<"idle" | "sending" | "sent">("idle");
+  const [sheets, setSheets] = useState<"idle" | "sending" | "sent">("idle");
   const calendar = calendarUrl(intent, data);
 
-  async function sendToZapier() {
-    setZapier("sending");
+  async function sendToSheets() {
+    setSheets("sending");
     const def = registry[intent];
     try {
-      const res = await fetch("/api/send/zapier", {
+      const res = await fetch("/api/send/sheets", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ intent, label: def.label, summary: def.summary(data), text, data }),
       });
       if (!res.ok) {
         const { error } = await res.json().catch(() => ({ error: null }));
-        throw new Error(error ?? "Could not reach Zapier");
+        throw new Error(error ?? "Could not reach Google Sheets");
       }
-      setZapier("sent");
-      notify("Sent to Zapier", { id: "zapier" });
-      setTimeout(() => setZapier("idle"), 2000);
+      setSheets("sent");
+      notify("Added a row to Google Sheets", { id: "sheets" });
+      setTimeout(() => setSheets("idle"), 2000);
     } catch (err) {
-      setZapier("idle");
-      notify(err instanceof Error ? err.message : "Could not reach Zapier", { lead: "Not sent.", id: "zapier" });
+      setSheets("idle");
+      notify(err instanceof Error ? err.message : "Could not reach Google Sheets", { lead: "Not sent.", id: "sheets" });
     }
   }
 
@@ -55,15 +55,15 @@ export function SendToRow<K extends CardIntent>({ intent, data, text }: Props<K>
           </a>
         </Button>
       )}
-      <Button variant="outline" size="sm" className="rounded-full" onClick={sendToZapier} disabled={zapier === "sending"}>
-        {zapier === "sending" ? (
+      <Button variant="outline" size="sm" className="rounded-full" onClick={sendToSheets} disabled={sheets === "sending"}>
+        {sheets === "sending" ? (
           <LoaderCircle aria-hidden className="animate-spin" />
-        ) : zapier === "sent" ? (
+        ) : sheets === "sent" ? (
           <Check aria-hidden />
         ) : (
-          <Zap aria-hidden />
+          <Sheet aria-hidden />
         )}
-        {zapier === "sent" ? "Sent" : "Send to Zapier"}
+        {sheets === "sent" ? "Added" : "Send to Google Sheets"}
       </Button>
     </div>
   );

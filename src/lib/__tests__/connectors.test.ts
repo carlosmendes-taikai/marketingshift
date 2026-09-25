@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { cardDetails } from "@/lib/connectors/cardDetails";
 import { eventCalendarUrl, googleCalendarUrl, reminderCalendarUrl } from "@/lib/connectors/googleCalendar";
 import { parseEvent } from "@/lib/parse/event";
 import { parseReminder } from "@/lib/parse/reminder";
@@ -34,5 +35,13 @@ describe("Google Calendar links", () => {
     const p = params(reminderCalendarUrl(parseReminder("remind me to send the newsletter tomorrow 9am", REF)));
     expect(p.get("text")).toBe("Send the newsletter");
     expect(p.get("dates")).toMatch(/^\d{8}T\d{6}Z\/\d{8}T\d{6}Z$/);
+  });
+});
+
+describe("Card details for Google Sheets", () => {
+  test("readable lines, empty fields left out", () => {
+    expect(
+      cardDetails({ title: "Call", date: "2026-09-29T14:00:00.000Z", hasTime: true, people: ["Ana", "Rui"], link: null, location: "" }),
+    ).toBe("Title: Call\nDate: 2026-09-29 14:00 UTC\nHas time: Yes\nPeople: Ana, Rui");
   });
 });
