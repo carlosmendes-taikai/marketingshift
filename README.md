@@ -58,6 +58,10 @@ Restart `bun dev`. The latency readout in the bottom-right corner switches from 
 | UTM link | `linkedin campaign october hacker house taikai.network/hh2` |
 | Content idea | `post about how we ran hacker house with dehouse` |
 | Lead | `met Ana from Sonae, interested in AI workshop` |
+| Post draft | paste a LinkedIn draft, or a LinkedIn post link |
+| Campaign results | `linkedin ads 500 spent, 12k impressions, 340 clicks, 25 leads` |
+| Event promo plan | `promote hacker house on nov 15` |
+| A/B test | `subject: "Your hacker house recap" vs "What 40 builders shipped in 48h"` |
 | Event | `call with the dehouse team tuesday 3pm on meet` |
 | Reminder | `remind me to send the newsletter friday urgent` |
 | Checklist | `launch checklist: brief, visuals, landing page, emails` |
@@ -70,6 +74,10 @@ Restart `bun dev`. The latency readout in the bottom-right corner switches from 
 **UTM link** builds a tagged URL (source, medium, campaign, optional `content …`), lowercase with hyphens. Common sources map to a medium: LinkedIn, X, Instagram → `social`; newsletter → `email`; Google Ads → `cpc`.
 **Content idea** shows the idea plus Jev's pick of brand (LayerX, TAIKAI, /ai-cmo) and format (LinkedIn post, carousel, article, video). Clicking another option writes it into the text ("… for TAIKAI as a carousel"), so the choice is saved with the card.
 **Lead** shows name, company, interest and a follow-up date, three working days later unless you type one ("follow up monday").
+**Post draft** is the post grader app folded in: a second Jev call (`/api/grade`) scores the hook, picks the audience and flags AI-sounding copy, while code counts characters and shows where LinkedIn cuts to "…see more". Paste a public LinkedIn post link to grade that post. Shift+Enter adds a line.
+**Campaign results** works out click rate, cost per click, cost per lead, conversion and cost per 1,000 views from the numbers you type.
+**Event promo plan** lays out announce (4 weeks before), reminder (2 weeks), one week to go, last call (the day before) and recap (2 days after), each with a Google Calendar button.
+**A/B test** asks Jev which option wins and how strong each one is on its own.
 
 ### Send to
 

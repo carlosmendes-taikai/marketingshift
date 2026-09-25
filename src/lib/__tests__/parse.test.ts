@@ -245,3 +245,79 @@ describe("lead", () => {
   });
   test("name only", () => expect(parseLead("met rui", REF)).toMatchObject({ name: "Rui", company: null, interest: null }));
 });
+
+import { parseAbTest } from "@/lib/parse/abtest";
+import { parseDraft, seeMorePreview } from "@/lib/parse/draft";
+import { parseMetrics } from "@/lib/parse/metrics";
+import { parsePromo } from "@/lib/parse/promo";
+
+describe("post draft", () => {
+  const post = "We ran a hacker house for 40 builders.\n\nHere is what we learned in 48 hours.\n\n1. Food matters\n2. So does sleep\n#hackathon #taikai";
+  test("counts and first line", () => {
+    const d = parseDraft(post);
+    expect(d.firstLine).toBe("We ran a hacker house for 40 builders.");
+    expect(d.hashtags).toBe(2);
+    expect(d.words).toBe(25);
+    expect(d.linkedinUrl).toBeNull();
+  });
+  test("see more cuts at 3 lines", () => expect(seeMorePreview(post)).toBe("We ran a hacker house for 40 builders.\n\nHere is what we learned in 48 hours."));
+  test("short post fits without see more", () => expect(seeMorePreview("Short and sweet.")).toBeNull());
+  test("LinkedIn post link", () => {
+    const d = parseDraft("https://www.linkedin.com/posts/carlos_hackathon-activity-123");
+    expect(d.linkedinUrl).toBe("https://www.linkedin.com/posts/carlos_hackathon-activity-123");
+    expect(d.post).toBe("");
+  });
+});
+
+describe("campaign results", () => {
+  test("the example", () => {
+    const m = parseMetrics("linkedin ads 500 spent, 12k impressions, 340 clicks, 25 leads");
+    expect([m.channel, m.spend, m.impressions, m.clicks, m.leads]).toEqual(["LinkedIn", 500, 12000, 340, 25]);
+    expect(m.ctr).toBeCloseTo(2.833, 2);
+    expect(m.cpc).toBeCloseTo(1.47, 2);
+    expect(m.cpl).toBe(20);
+    expect(m.cpm).toBeCloseTo(41.67, 2);
+    expect(m.conversion).toBeCloseTo(7.35, 2);
+    expect(m.currency).toBe("€");
+  });
+  test("currency symbols and label-first numbers", () => {
+    const m = parseMetrics("newsletter: $1,200, clicks: 800, signups 64");
+    expect([m.channel, m.currency, m.spend, m.clicks, m.leads]).toEqual(["Email", "$", 1200, 800, 64]);
+    expect(m.cpl).toBe(18.75);
+    expect(m.ctr).toBeNull();
+  });
+});
+
+describe("event promo plan", () => {
+  test("timeline from the event date", () => {
+    const p = parsePromo("promote hacker house on nov 15", REF);
+    expect(p.name).toBe("Hacker house");
+    expect(p.date).toEqual(new Date(2026, 10, 15));
+    expect(p.steps.map((s) => [s.label, s.date.getMonth() + 1, s.date.getDate(), s.past])).toEqual([
+      ["Announce", 10, 18, false],
+      ["Reminder", 11, 1, false],
+      ["One week to go", 11, 8, false],
+      ["Last call", 11, 14, false],
+      ["Recap", 11, 17, false],
+    ]);
+  });
+  test("steps already behind us are marked past", () => {
+    const p = parsePromo("promo plan for web summit oct 5", REF);
+    expect(p.name).toBe("Web summit");
+    expect(p.steps.filter((s) => s.past).map((s) => s.label)).toEqual(["Announce", "Reminder"]); // Sep 7 and Sep 21
+  });
+});
+
+describe("A/B test", () => {
+  test("quoted options", () =>
+    expect(parseAbTest('subject: "Your hacker house recap" vs "What 40 builders shipped in 48h"')).toEqual({
+      kind: "subject",
+      options: ["Your hacker house recap", "What 40 builders shipped in 48h"],
+    }));
+  test("unquoted with vs", () =>
+    expect(parseAbTest("headline: build faster with ai vs ship in half the time")).toEqual({
+      kind: "headline",
+      options: ["build faster with ai", "ship in half the time"],
+    }));
+  test("apostrophes are not quotes", () => expect(parseAbTest("cta: what's new vs see what's new").options).toEqual(["what's new", "see what's new"]));
+});

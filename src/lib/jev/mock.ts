@@ -38,6 +38,20 @@ function intentScores(raw: string): Scores {
   const s: Scores = {};
   const add = (k: IntentKey, v: number) => (s[k] = (s[k] ?? 0) + v);
 
+  // A long, multi-sentence text or a LinkedIn post link is a draft to review.
+  const sentences = (raw.match(/[.!?](\s|$)/g) ?? []).length + (raw.match(/\n/g) ?? []).length;
+  if (has(/^https:\/\/(www\.)?(linkedin\.com\/(posts|feed\/update)\/|lnkd\.in\/)\S+$/, t)) add("draft", 12);
+  else if (words.length >= 40 || (words.length >= 20 && sentences >= 2)) add("draft", 9);
+  // Campaign results: numbers next to metric words.
+  const metricHits = (t.match(/\d[\d,.]*\s*[km]?\s*(impressions?|clicks?|leads?|sign ?ups?|registrations?|conversions?|views|reach)\b|\b(spent|spend|budget|cpc|ctr|cpl|roas)\b/g) ?? []).length;
+  if (metricHits >= 2) add("metrics", 5 + metricHits);
+  // Event promo plan: "promote X on nov 15".
+  if (has(/\b(promo|promote|promotion|launch plan|marketing plan)\b/, t)) add("promo", has(DATE_WORDS, t) || /\d/.test(t) ? 7 : 5);
+  // A/B test: two options with vs, or quoted options with a subject/headline keyword.
+  const quotes = (raw.match(/["“”]/g) ?? []).length;
+  if (has(/\b(a\/?b( test)?|subject( lines?)?|headlines?|cta)\b/, t) && (has(/\s(vs\.?|versus)\s/, t) || quotes >= 4)) add("abtest", 9);
+  else if (has(/\s(vs\.?|versus)\s/, t) && quotes >= 4) add("abtest", 7);
+
   const url = has(URL_LIKE, t);
   if (url) add("link", 6);
   // A link with a traffic source or a campaign is a UTM link, not a bookmark.
@@ -74,6 +88,19 @@ function intentScores(raw: string): Scores {
   else add("none", 1.5);
 
   // Mutual exclusions mirror the criteria wording.
+  if ((s.draft ?? 0) >= 9) {
+    for (const k of ["idea", "event", "todo", "link", "utm", "lead", "reminder"] as const) s[k] = Math.min(s[k] ?? 0, 3);
+  }
+  if ((s.metrics ?? 0) >= 7) {
+    s.calc = Math.min(s.calc ?? 0, 1);
+    s.todo = Math.min(s.todo ?? 0, 1);
+    s.utm = Math.min(s.utm ?? 0, 2);
+  }
+  if ((s.promo ?? 0) >= 7) s.event = Math.min(s.event ?? 0, 2);
+  if ((s.abtest ?? 0) >= 7) {
+    s.reminder = Math.min(s.reminder ?? 0, 2);
+    s.idea = Math.min(s.idea ?? 0, 2);
+  }
   if ((s.utm ?? 0) >= 8) s.link = Math.min(s.link ?? 0, 2);
   if ((s.reminder ?? 0) >= 6) s.event = Math.min(s.event ?? 0, 2.5);
   if ((s.lead ?? 0) >= 6) {

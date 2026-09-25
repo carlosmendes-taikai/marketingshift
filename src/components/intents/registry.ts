@@ -1,5 +1,9 @@
 import {
   AlarmClock,
+  BarChart3,
+  FileText,
+  Megaphone,
+  Split,
   Bell,
   Calculator,
   CalendarDays,
@@ -19,16 +23,22 @@ import {
 } from "lucide-react";
 import type { CardIntent } from "@/lib/jev/types";
 import type { ParsedMap } from "@/lib/parse";
+import { AB_KIND_LABEL } from "@/lib/parse/abtest";
 import { BRAND_LABEL, FORMAT_LABEL } from "@/lib/parse/marketing";
+import { formatMoney } from "@/lib/parse/metrics";
 import { formatClock } from "@/lib/parse/timer";
 import { formatIn } from "@/lib/parse/timezone";
 import type { GatedSignals } from "@/lib/signals";
+import { AbTestCard } from "./AbTestCard";
 import { CalcCard } from "./CalcCard";
 import { ContactCard } from "./ContactCard";
+import { DraftCard } from "./DraftCard";
 import { EventCard } from "./EventCard";
 import { IdeaCard } from "./IdeaCard";
 import { LeadCard } from "./LeadCard";
 import { LinkCard } from "./LinkCard";
+import { MetricsCard } from "./MetricsCard";
+import { PromoCard } from "./PromoCard";
 import { ReminderPill } from "./ReminderPill";
 import { formatWhen } from "./shared";
 import { TimerRing } from "./TimerRing";
@@ -78,6 +88,48 @@ export const registry: Registry = {
         .filter(Boolean)
         .join(" · "),
     Component: LeadCard,
+  },
+  draft: {
+    label: "Post draft",
+    example: "Paste a LinkedIn draft or a post link",
+    icon: FileText,
+    signals: [],
+    summary: (d) => (d.linkedinUrl ? `LinkedIn post · ${d.linkedinUrl.replace(/^https:\/\/(www\.)?/, "")}` : `${d.firstLine || "Post draft"} · ${d.chars} characters`),
+    Component: DraftCard,
+  },
+  metrics: {
+    label: "Campaign results",
+    example: "linkedin ads 500 spent, 12k impressions, 340 clicks, 25 leads",
+    icon: BarChart3,
+    signals: [],
+    summary: (d) =>
+      [
+        d.channel ?? "Campaign",
+        d.ctr !== null && `${d.ctr.toFixed(2)}% click rate`,
+        d.cpl !== null && `${formatMoney(d.cpl, d.currency)} per lead`,
+      ]
+        .filter(Boolean)
+        .join(" · "),
+    Component: MetricsCard,
+  },
+  promo: {
+    label: "Event promo plan",
+    example: "promote hacker house on nov 15",
+    icon: Megaphone,
+    signals: [],
+    summary: (d) =>
+      [d.name || "Event promo", d.date && formatWhen(d.date, false).day, d.steps.length && `${d.steps.filter((s) => !s.past).length} steps to go`]
+        .filter(Boolean)
+        .join(" · "),
+    Component: PromoCard,
+  },
+  abtest: {
+    label: "A/B test",
+    example: "subject: \"Your hacker house recap\" vs \"What 40 builders shipped in 48h\"",
+    icon: Split,
+    signals: [],
+    summary: (d) => `${AB_KIND_LABEL[d.kind]} · ${d.options.join(" vs ") || "no options yet"}`,
+    Component: AbTestCard,
   },
   event: {
     label: "Event",
@@ -157,7 +209,7 @@ export const registry: Registry = {
 export const CARD_INTENTS = Object.keys(registry) as CardIntent[];
 
 /** A card label mid-sentence: "Add content idea", but acronyms stay as written: "Add UTM link". */
-export const inSentence = (label: string) => (/^[A-Z]{2}/.test(label) ? label : label.charAt(0).toLowerCase() + label.slice(1));
+export const inSentence = (label: string) => (/^[A-Z][A-Z/]/.test(label) ? label : label.charAt(0).toLowerCase() + label.slice(1));
 
 /** The card's data with Jev-decided fields filled in, for summaries and "Send to". */
 export function resolved<K extends CardIntent>(intent: K, data: ParsedMap[K], signals: GatedSignals) {

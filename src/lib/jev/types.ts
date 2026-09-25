@@ -4,6 +4,10 @@ export const INTENT_KEYS = [
   "utm",
   "idea",
   "lead",
+  "draft",
+  "metrics",
+  "promo",
+  "abtest",
   "event",
   "reminder",
   "todo",
@@ -67,7 +71,7 @@ export const intentResultSchema = z.object({
 });
 export type IntentResult = z.infer<typeof intentResultSchema>;
 
-export const intentRequestSchema = z.object({ text: z.string().max(2000) });
+export const intentRequestSchema = z.object({ text: z.string().max(4000) });
 
 function neutralAnswer<T extends string>(value: T): Answer<T> {
   return { value, confidence: 1, probabilities: { [value]: 1 } as Partial<Record<T, number>> };

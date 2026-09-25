@@ -19,7 +19,7 @@ export function FirstRunHint({ show }: { show: boolean }) {
           transition={tween.crossfade}
           className="mt-2 flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 px-4 text-center text-[13px] leading-[18px] font-medium text-muted-foreground"
         >
-          Type a campaign link, a content idea, a lead or a meeting. It becomes a card.
+          Type a campaign link, a lead, results or a meeting, or paste a post. It becomes a card.
           <span className="inline-flex items-center gap-1.5">
             Press <Kbd>/</Kbd> to see all {CARD_INTENTS.length} card types.
           </span>

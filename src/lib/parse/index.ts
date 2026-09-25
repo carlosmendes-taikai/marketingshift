@@ -1,10 +1,14 @@
 import type { CardIntent } from "@/lib/jev/types";
+import { completeAbTest, parseAbTest, type AbTestData } from "./abtest";
 import { completeCalc, parseCalc, type CalcData } from "./calc";
 import { completeContact, parseContact, type ContactData } from "./contact";
+import { completeDraft, parseDraft, type DraftData } from "./draft";
 import { completeEvent, parseEvent, type EventData } from "./event";
 import { completeIdea, parseIdea, type IdeaData } from "./idea";
 import { completeLead, parseLead, type LeadData } from "./lead";
 import { completeLink, parseLink, type LinkData } from "./link";
+import { completeMetrics, parseMetrics, type MetricsData } from "./metrics";
+import { completePromo, parsePromo, type PromoData } from "./promo";
 import { completeReminder, parseReminder, type ReminderData } from "./reminder";
 import { completeTimer, parseTimer, type TimerData } from "./timer";
 import { completeTimezone, parseTimezone, type TimezoneData } from "./timezone";
@@ -15,6 +19,10 @@ export type ParsedMap = {
   utm: UtmData;
   idea: IdeaData;
   lead: LeadData;
+  draft: DraftData;
+  metrics: MetricsData;
+  promo: PromoData;
+  abtest: AbTestData;
   event: EventData;
   reminder: ReminderData;
   todo: TodoData;
@@ -36,6 +44,10 @@ export const parsers: { [K in CardIntent]: Parser<K> } = {
   utm: { parse: (t) => parseUtm(t), complete: completeUtm },
   idea: { parse: (t) => parseIdea(t), complete: completeIdea },
   lead: { parse: (t, c) => parseLead(t, c.ref), complete: completeLead },
+  draft: { parse: (t) => parseDraft(t), complete: completeDraft },
+  metrics: { parse: (t) => parseMetrics(t), complete: completeMetrics },
+  promo: { parse: (t, c) => parsePromo(t, c.ref), complete: completePromo },
+  abtest: { parse: (t) => parseAbTest(t), complete: completeAbTest },
   event: { parse: (t, c) => parseEvent(t, c.ref), complete: completeEvent },
   reminder: { parse: (t, c) => parseReminder(t, c.ref), complete: completeReminder },
   todo: { parse: (t) => parseTodo(t), complete: completeTodo },
