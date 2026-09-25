@@ -1,7 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { cardDetails } from "@/lib/connectors/cardDetails";
-import { eventCalendarUrl, googleCalendarUrl, reminderCalendarUrl } from "@/lib/connectors/googleCalendar";
+import { eventCalendarUrl, googleCalendarUrl, leadCalendarUrl, reminderCalendarUrl } from "@/lib/connectors/googleCalendar";
 import { parseEvent } from "@/lib/parse/event";
+import { parseLead } from "@/lib/parse/lead";
 import { parseReminder } from "@/lib/parse/reminder";
 
 const params = (url: string) => new URL(url).searchParams;
@@ -35,6 +36,15 @@ describe("Google Calendar links", () => {
     const p = params(reminderCalendarUrl(parseReminder("remind me to send the newsletter tomorrow 9am", REF)));
     expect(p.get("text")).toBe("Send the newsletter");
     expect(p.get("dates")).toMatch(/^\d{8}T\d{6}Z\/\d{8}T\d{6}Z$/);
+  });
+});
+
+describe("Lead follow-up", () => {
+  test("all-day entry on the follow-up date", () => {
+    const p = params(leadCalendarUrl(parseLead("met Ana from Sonae, interested in AI workshop", REF)));
+    expect(p.get("text")).toBe("Follow up with Ana (Sonae)");
+    expect(p.get("dates")).toBe("20260930/20261001"); // Fri 25 Sep + 3 working days = Wed 30 Sep
+    expect(p.get("details")).toBe("Interested in: AI workshop");
   });
 });
 

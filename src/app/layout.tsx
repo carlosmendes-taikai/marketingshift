@@ -10,7 +10,7 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 export const metadata: Metadata = {
   title: "Marketingshift: type it, get the right card",
   description:
-    "One text box for a marketer's day. Type a note and it becomes the right card: events, reminders, checklists and more. Powered by TypeSafe AI's Jev.",
+    "One text box for a marketer's day. Type a note and it becomes the right card: UTM links, content ideas, leads, meetings and more. Powered by TypeSafe AI's Jev.",
   // Absolute URLs for the Open Graph image: explicit site URL, else Vercel's production domain.
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL ??

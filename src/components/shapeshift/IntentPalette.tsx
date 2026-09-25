@@ -29,7 +29,7 @@ export function IntentPalette({
       <Command>
         <CommandInput placeholder="Show as…" className="text-base sm:text-sm" />
         <CommandList className="max-h-[420px] overscroll-contain">
-          <CommandEmpty>No card type matches. Try “timer” or “poll”.</CommandEmpty>
+          <CommandEmpty>No card type matches. Try “lead” or “UTM”.</CommandEmpty>
           <CommandGroup>
             {CARD_INTENTS.map((intent) => {
               const def = registry[intent];
@@ -44,7 +44,7 @@ export function IntentPalette({
                   <span className="bg-secondary text-foreground grid size-8 shrink-0 place-items-center rounded-sm">
                     <Icon className="size-[18px]" aria-hidden />
                   </span>
-                  <span className="w-20 shrink-0 text-[14px] font-medium">{def.label}</span>
+                  <span className="w-24 shrink-0 text-[14px] font-medium">{def.label}</span>
                   <span className="text-muted-foreground min-w-0 text-[13px] text-pretty">{def.example}</span>
                 </CommandItem>
               );

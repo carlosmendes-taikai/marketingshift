@@ -2,7 +2,7 @@
 
 import { X } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { registry } from "@/components/intents/registry";
+import { registry, inSentence } from "@/components/intents/registry";
 import { spring, tween } from "@/lib/motion";
 import type { SavedItem } from "@/lib/savedItems";
 import { cn } from "@/lib/utils";
@@ -70,7 +70,7 @@ export function RecentStack({
                     type="button"
                     whileTap={reduce ? undefined : { scale: 0.96 }}
                     onClick={() => onOpen(item)}
-                    aria-label={`Edit ${def.label.toLowerCase()}: ${item.summary}`}
+                    aria-label={`Edit ${inSentence(def.label)}: ${item.summary}`}
                     className="flex min-h-14 min-w-0 flex-1 items-center gap-3 rounded-xl py-2 ps-2 pe-11 text-start focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                   >
                     {/* Age reads through the tile fading, never through the text. */}
@@ -95,7 +95,7 @@ export function RecentStack({
                   <button
                     type="button"
                     onClick={() => onDelete(item)}
-                    aria-label={`Delete ${def.label.toLowerCase()}: ${item.summary}`}
+                    aria-label={`Delete ${inSentence(def.label)}: ${item.summary}`}
                     className="absolute end-1 grid size-10 place-items-center rounded-md text-muted-foreground transition-[opacity,color,scale] duration-150 ease-out hover:text-foreground focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring active:scale-[0.96] [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
                   >
                     <X className="size-4" aria-hidden />

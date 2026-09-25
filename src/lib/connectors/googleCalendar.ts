@@ -1,4 +1,5 @@
 import type { EventData } from "@/lib/parse/event";
+import type { LeadData } from "@/lib/parse/lead";
 import type { ReminderData } from "@/lib/parse/reminder";
 
 /** What Google Calendar's "create event" link needs. Timed entries are converted to UTC. */
@@ -45,4 +46,15 @@ export function eventCalendarUrl(d: EventData) {
 
 export function reminderCalendarUrl(d: ReminderData) {
   return googleCalendarUrl({ title: d.task || "Reminder", start: d.when, hasTime: d.hasTime, minutes: 15 });
+}
+
+export function leadCalendarUrl(d: LeadData) {
+  const who = [d.name || "lead", d.company && `(${d.company})`].filter(Boolean).join(" ");
+  return googleCalendarUrl({
+    title: `Follow up with ${who}`,
+    start: d.followUp,
+    hasTime: false,
+    minutes: 0,
+    details: d.interest ? `Interested in: ${d.interest}` : undefined,
+  });
 }

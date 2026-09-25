@@ -47,19 +47,14 @@ export function DebugPanel({ result, mem, gated }: { result: IntentResult; mem: 
       <Dist name="intent" a={result.intent} />
       <div className="flex flex-col gap-0.5">
         <span className="text-foreground">noul / score</span>
-        <span>isQuestion {s.isQuestion.toFixed(2)} → {String(gated.isQuestion)}</span>
         <span>recurring {s.recurring.toFixed(2)} → {String(gated.recurring)}</span>
-        <span>hasExplicitOptions {s.hasExplicitOptions.toFixed(2)} → {String(gated.hasExplicitOptions)}</span>
         <span>isShoppingList {s.isShoppingList.toFixed(2)} → {String(gated.isShoppingList)}</span>
         <span>urgency {s.urgency.score.toFixed(2)} (c {s.urgency.confidence.toFixed(2)}) → {String(gated.urgent)}</span>
       </div>
-      <Dist name="tone" a={s.tone} />
       <Dist name="eventMode" a={s.eventMode} />
-      <Dist name="transport" a={s.transport} />
-      <Dist name="tripType" a={s.tripType} />
-      <Dist name="expenseCategory" a={s.expenseCategory} />
-      <Dist name="colorMood" a={s.colorMood} />
       <Dist name="timerKind" a={s.timerKind} />
+      <Dist name="brand" a={s.brand} />
+      <Dist name="contentFormat" a={s.contentFormat} />
     </aside>
   );
 }

@@ -5,18 +5,16 @@ import { useEffect, useState } from "react";
 import { tween } from "@/lib/motion";
 
 const EXAMPLES = [
-  "dinner with priya friday 8pm",
-  "buy milk, eggs, bread and coffee",
+  "linkedin campaign october hacker house taikai.network/hh2",
+  "post about how we ran hacker house with dehouse",
+  "met Ana from Sonae, interested in AI workshop",
+  "call with the dehouse team tuesday 3pm on meet",
+  "remind me to send the newsletter friday 9am",
+  "launch checklist: brief, visuals, landing page, emails",
+  "newsletter campaign october recap taikai.network/blog",
+  "carousel about 5 lessons from web summit",
   "25 min focus",
-  "a warm sunset orange",
-  "split 2400 between 3",
-  "5 miles in km",
-  "flight to goa next weekend",
-  "pizza or burgers for friday?",
-  "days until christmas",
-  "3pm pst in ist",
-  "roll 2d6",
-  "minecraft diamond",
+  "3pm lisbon in new york",
 ];
 
 export function CyclingPlaceholder() {

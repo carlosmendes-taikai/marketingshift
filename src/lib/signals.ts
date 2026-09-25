@@ -1,16 +1,4 @@
-import type {
-  Answer,
-  ColorMood,
-  EventMode,
-  ExpenseCategory,
-  IntentResult,
-  SignalKey,
-  Signals,
-  TimerKind,
-  Tone,
-  Transport,
-  TripType,
-} from "@/lib/jev/types";
+import type { Answer, Brand, ContentFormat, EventMode, IntentResult, SignalKey, Signals, TimerKind } from "@/lib/jev/types";
 
 export const SIGNAL_THRESHOLDS = {
   choiceMin: 0.6,
@@ -24,15 +12,11 @@ export const SIGNAL_THRESHOLDS = {
 
 export type GatedSignals = {
   eventMode: EventMode | null;
-  transport: Transport | null;
-  tripType: TripType | null;
-  expenseCategory: ExpenseCategory | null;
-  colorMood: ColorMood | null;
   timerKind: TimerKind | null;
-  tone: Tone | null;
+  /** Jev's pick for a content idea. Always its top answer: the card lets you change it in one click. */
+  brand: Brand | null;
+  contentFormat: ContentFormat | null;
   recurring: boolean;
-  isQuestion: boolean;
-  hasExplicitOptions: boolean;
   isShoppingList: boolean;
   /** Continuous 0..2, used for smooth mappings. */
   urgency: number;
@@ -42,15 +26,10 @@ export type GatedSignals = {
 
 export const neutralGated: GatedSignals = {
   eventMode: null,
-  transport: null,
-  tripType: null,
-  expenseCategory: null,
-  colorMood: null,
   timerKind: null,
-  tone: null,
+  brand: null,
+  contentFormat: null,
   recurring: false,
-  isQuestion: false,
-  hasExplicitOptions: false,
   isShoppingList: false,
   urgency: 0,
   urgent: false,
@@ -71,10 +50,12 @@ function gateNoul(p: number, prev: boolean): boolean {
   return prev;
 }
 
-type ChoiceKey = "eventMode" | "transport" | "tripType" | "expenseCategory" | "colorMood" | "timerKind" | "tone";
-type NoulKey = "recurring" | "isQuestion" | "hasExplicitOptions" | "isShoppingList";
-const CHOICE_KEYS: ChoiceKey[] = ["eventMode", "transport", "tripType", "expenseCategory", "colorMood", "timerKind", "tone"];
-const NOUL_KEYS: NoulKey[] = ["recurring", "isQuestion", "hasExplicitOptions", "isShoppingList"];
+type ChoiceKey = "eventMode" | "timerKind";
+type PickKey = "brand" | "contentFormat";
+type NoulKey = "recurring" | "isShoppingList";
+const CHOICE_KEYS: ChoiceKey[] = ["eventMode", "timerKind"];
+const PICK_KEYS: PickKey[] = ["brand", "contentFormat"];
+const NOUL_KEYS: NoulKey[] = ["recurring", "isShoppingList"];
 
 /**
  * Read only the signals the committed intent uses, applying thresholds and
@@ -89,6 +70,10 @@ export function gateSignals(prev: GatedSignals, result: IntentResult, used: read
     if (!uses.has(k)) continue;
     // Each key maps to its own answer type; the cast keeps the loop generic.
     (next as Record<ChoiceKey, string | null>)[k] = gateChoice(s[k] as Answer<string>, prev[k]);
+  }
+  for (const k of PICK_KEYS) {
+    if (!uses.has(k)) continue;
+    (next as Record<PickKey, string | null>)[k] = s[k].value;
   }
   for (const k of NOUL_KEYS) {
     if (!uses.has(k)) continue;

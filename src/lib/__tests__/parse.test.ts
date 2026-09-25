@@ -1,20 +1,16 @@
 import { describe, expect, test } from "bun:test";
-import { parseEvent } from "@/lib/parse/event";
-import { parseReminder } from "@/lib/parse/reminder";
-import { parseTodo } from "@/lib/parse/todo";
-import { parseTimer, formatClock } from "@/lib/parse/timer";
-import { parseHabit } from "@/lib/parse/habit";
-import { parseColor } from "@/lib/parse/color";
-import { parseSplit } from "@/lib/parse/split";
-import { parseExpense } from "@/lib/parse/expense";
-import { parseConvert } from "@/lib/parse/convert";
 import { evaluate, parseCalc } from "@/lib/parse/calc";
-import { parseTravel } from "@/lib/parse/travel";
-import { parsePoll } from "@/lib/parse/poll";
 import { parseContact } from "@/lib/parse/contact";
+import { parseEvent } from "@/lib/parse/event";
+import { parseIdea } from "@/lib/parse/idea";
+import { addWorkingDays, parseLead } from "@/lib/parse/lead";
 import { parseLink } from "@/lib/parse/link";
-import { parseNote } from "@/lib/parse/note";
-import { shades, hexToOklch, oklchToHex } from "@/lib/color";
+import { withBrand, withFormat } from "@/lib/parse/marketing";
+import { parseReminder } from "@/lib/parse/reminder";
+import { formatClock, parseTimer } from "@/lib/parse/timer";
+import { dayShift, formatIn, parseTimezone, wallTimeToInstant } from "@/lib/parse/timezone";
+import { parseTodo } from "@/lib/parse/todo";
+import { parseUtm, slug } from "@/lib/parse/utm";
 
 // Tuesday 22 Sep 2026, 10:00 local
 const REF = new Date(2026, 8, 22, 10, 0);
@@ -100,80 +96,6 @@ describe("timer", () => {
   });
 });
 
-describe("habit", () => {
-  test("meditate every morning", () => {
-    const h = parseHabit("meditate every morning");
-    expect(h.title).toBe("Meditate");
-    expect(h.days).toHaveLength(7);
-    expect(h.label).toBe("Every morning");
-  });
-  test("gym 3x a week", () => {
-    const h = parseHabit("gym 3x a week");
-    expect(h.title).toBe("Gym");
-    expect(h.perWeek).toBe(3);
-    expect(h.days).toEqual([1, 3, 5]);
-  });
-  test("weekday names", () => expect(parseHabit("run on monday and thursday").days).toEqual([1, 4]));
-  test("daily", () => expect(parseHabit("read daily").title).toBe("Read"));
-  test("weekdays", () => expect(parseHabit("journal weekdays").days).toEqual([1, 2, 3, 4, 5]));
-});
-
-describe("color", () => {
-  test("hex 6", () => expect(parseColor("#ff6b35").hex).toBe("#ff6b35"));
-  test("hex 3", () => expect(parseColor("#f60").hex).toBe("#ff6600"));
-  test("rgb", () => expect(parseColor("rgb(255, 107, 53)").hex).toBe("#ff6b35"));
-  test("named, last word wins", () => {
-    const c = parseColor("a warm sunset orange");
-    expect(c.source).toBe("named");
-    expect(c.name).toBe("orange");
-  });
-  test("minecraft diamond → reference color", () => {
-    expect(parseColor("minecraft diamond")).toEqual({ hex: "#4aedd9", name: "minecraft diamond", source: "named" });
-  });
-  test("reference beats plain name", () => expect(parseColor("tiffany blue").hex).toBe("#0abab5"));
-  test("hyphen and spacing variants", () => expect(parseColor("coca-cola red").hex).toBe("#f40009"));
-  test("gem", () => expect(parseColor("ruby").name).toBe("ruby"));
-  test("evocative word when nothing else", () => expect(parseColor("the color of the ocean").name).toBe("ocean"));
-  test("plain name still beats evocative", () => expect(parseColor("a warm sunset orange").name).toBe("orange"));
-    test("mood fallback", () => expect(parseColor("something cozy", "warm").source).toBe("mood"));
-  test("nothing", () => expect(parseColor("hmm").hex).toBeNull());
-  test("oklch round trip and 5 shades", () => {
-    const o = hexToOklch("#3b5bdb")!;
-    expect(oklchToHex(o)).toBe("#3b5bdb");
-    expect(shades("#ff6b35")).toHaveLength(5);
-  });
-});
-
-describe("split", () => {
-  test("split 2400 between 3", () => expect(parseSplit("split 2400 between 3")).toEqual({ total: 2400, people: 3, currency: "₹" }));
-  test("dollars", () => expect(parseSplit("split $90 among four").currency).toBe("$"));
-  test("names", () => expect(parseSplit("split 900 between me, rahul and priya").people).toBe(3));
-  test("ways", () => expect(parseSplit("1,200 4 ways").total).toBe(1200));
-  test("partial", () => expect(parseSplit("split 500")).toEqual({ total: 500, people: null, currency: "₹" }));
-});
-
-describe("expense", () => {
-  test("spent 450 on uber", () => expect(parseExpense("spent 450 on uber")).toMatchObject({ amount: 450, item: "Uber" }));
-  test("rs prefix", () => expect(parseExpense("paid rs. 1,299 for headphones").amount).toBe(1299));
-  test("at", () => expect(parseExpense("120 at starbucks").item).toBe("Starbucks"));
-  test("no amount", () => expect(parseExpense("spent on lunch").amount).toBeNull());
-  test("k suffix", () => expect(parseExpense("spent 2k on groceries").amount).toBe(2000));
-});
-
-describe("convert", () => {
-  test("5 miles in km", () => {
-    const c = parseConvert("5 miles in km");
-    expect(c.from).toBe("mi");
-    expect(c.to).toBe("km");
-    expect(c.result).toBeCloseTo(8.047, 2);
-  });
-  test("72f to c", () => expect(parseConvert("72f to c").result).toBeCloseTo(22.22, 1));
-  test("kg to lbs", () => expect(parseConvert("10 kg to lbs").result).toBeCloseTo(22.05, 1));
-  test("partial with default target", () => expect(parseConvert("100 km").to).toBe("mi"));
-  test("degrees phrasing", () => expect(parseConvert("30 degrees c in f").result).toBeCloseTo(86, 1));
-  test("nothing", () => expect(parseConvert("hello").value).toBeNull());
-});
-
 describe("calc", () => {
   test("18% of 3450", () => expect(parseCalc("18% of 3450").result).toBeCloseTo(621));
   test("(120+80)*3", () => expect(parseCalc("(120+80)*3").result).toBe(600));
@@ -183,48 +105,6 @@ describe("calc", () => {
   test("x and ÷", () => expect(parseCalc("12 x 4 ÷ 2").result).toBe(24));
   test("invalid", () => expect(parseCalc("(1+").result).toBeNull());
   test("percent off", () => expect(parseCalc("20% off 1500").result).toBe(1200));
-});
-
-describe("travel", () => {
-  test("flight to goa next weekend", () => {
-    const t = parseTravel("flight to goa next weekend", REF);
-    expect(t.destination).toBe("Goa");
-    expect(t.start?.getDay()).toBe(6);
-    expect(t.end?.getDay()).toBe(0);
-  });
-  test("range", () => {
-    const t = parseTravel("trip to tokyo 12-15 oct", REF);
-    expect(t.destination).toBe("Tokyo");
-    expect(t.start?.getDate()).toBe(12);
-    expect(t.end?.getDate()).toBe(15);
-  });
-  test("origin", () => {
-    const t = parseTravel("train from mumbai to pune tomorrow", REF);
-    expect(t.origin).toBe("Mumbai");
-    expect(t.destination).toBe("Pune");
-  });
-  test("multi-word", () => expect(parseTravel("trip to new york", REF).destination).toBe("New York"));
-  test("no destination", () => expect(parseTravel("flight", REF).destination).toBeNull());
-});
-
-describe("poll", () => {
-  test("pizza or burgers for friday?", () => {
-    const p = parsePoll("pizza or burgers for friday?");
-    expect(p.options).toEqual(["Pizza", "Burgers"]);
-    expect(p.title).toBe("Pizza or burgers for friday?");
-  });
-  test("stem from question words", () => {
-    const p = parsePoll("should we get pizza or burgers");
-    expect(p.options).toEqual(["Pizza", "Burgers"]);
-    expect(p.title).toBe("Should we get?");
-  });
-  test("colon stem", () => {
-    const p = parsePoll("lunch: thai, sushi or tacos");
-    expect(p.title).toBe("Lunch?");
-    expect(p.options).toEqual(["Thai", "Sushi", "Tacos"]);
-  });
-  test("vs", () => expect(parsePoll("tabs vs spaces").options).toEqual(["Tabs", "Spaces"]));
-  test("no options", () => expect(parsePoll("pizza").options).toEqual([]));
 });
 
 describe("contact", () => {
@@ -251,31 +131,6 @@ describe("link", () => {
   test("no url", () => expect(parseLink("nothing here").url).toBeNull());
 });
 
-describe("note", () => {
-  test("single line", () => expect(parseNote("thinking about moving to a smaller place").title).toBe("Thinking about moving to a smaller place"));
-  test("multi line", () => expect(parseNote("idea\nbuild a thing")).toEqual({ title: "Idea", body: "build a thing" }));
-  test("sentences", () => expect(parseNote("Big day today. Shipped the thing and it went well").body).toBe("Shipped the thing and it went well"));
-  test("empty", () => expect(parseNote("").title).toBe(""));
-  test("trims", () => expect(parseNote("  hello   world ").title).toBe("Hello world"));
-});
-
-import { parseCountdown } from "@/lib/parse/countdown";
-import { dayShift, formatIn, parseTimezone, wallTimeToInstant } from "@/lib/parse/timezone";
-import { parseRandom, rollRandom } from "@/lib/parse/random";
-import { parseGoal } from "@/lib/parse/goal";
-
-describe("countdown", () => {
-  test("days until christmas", () => expect(parseCountdown("days until christmas", REF)).toMatchObject({ title: "Christmas", days: 94 }));
-  test("holiday already passed rolls to next year", () => expect(parseCountdown("halloween", new Date(2026, 10, 5)).date?.getFullYear()).toBe(2027));
-  test("dated event", () => {
-    const c = parseCountdown("how many days till my birthday on dec 12", REF);
-    expect(c.days).toBe(81);
-    expect(c.title).toBe("My birthday");
-  });
-  test("tomorrow", () => expect(parseCountdown("countdown to launch tomorrow", REF).days).toBe(1));
-  test("nothing", () => expect(parseCountdown("countdown", REF).days).toBeNull());
-});
-
 describe("timezone", () => {
   const at = new Date(Date.UTC(2026, 0, 15, 12, 0)); // January: no DST in the US
   test("3pm pst in ist", () => {
@@ -291,6 +146,11 @@ describe("timezone", () => {
     expect(tz.isNow).toBe(true);
     expect(tz.to?.label).toBe("Tokyo");
   });
+  test("3pm lisbon in new york", () => {
+    const tz = parseTimezone("3pm lisbon in new york", at);
+    expect([tz.from.label, tz.to?.label]).toEqual(["Lisbon", "New York"]);
+    expect(formatIn("America/New_York", tz.instant!)).toBe("10:00 AM");
+  });
   test("single zone after a time is the source", () => expect(parseTimezone("9am london", at).from.label).toBe("London"));
   test("24h clock", () => expect(formatIn("Europe/Paris", parseTimezone("14:30 paris to new york", at).instant!)).toBe("2:30 PM"));
   test("DST-aware wall time", () => {
@@ -299,23 +159,73 @@ describe("timezone", () => {
   });
 });
 
-describe("random", () => {
-  test("2d6", () => expect(parseRandom("roll 2d6")).toEqual({ kind: "dice", count: 2, sides: 6 }));
-  test("a die", () => expect(parseRandom("roll a die")).toEqual({ kind: "dice", count: 1, sides: 6 }));
-  test("coin", () => expect(parseRandom("flip a coin")).toEqual({ kind: "coin" }));
-  test("range", () => expect(parseRandom("random number 1-100")).toEqual({ kind: "number", min: 1, max: 100 }));
-  test("pick", () => expect(parseRandom("pick one: tacos, sushi or pizza")).toEqual({ kind: "pick", options: ["Tacos", "Sushi", "Pizza"] }));
-  test("rolls stay in range", () => {
-    const rolls = Array.from({ length: 200 }, () => Number(rollRandom({ kind: "dice", count: 1, sides: 6 })[0]));
-    expect(Math.min(...rolls)).toBeGreaterThanOrEqual(1);
-    expect(Math.max(...rolls)).toBeLessThanOrEqual(6);
+describe("utm", () => {
+  test("the brief's example", () => {
+    const u = parseUtm("linkedin campaign october hacker house taikai.network/hh2");
+    expect(u.source).toBe("linkedin");
+    expect(u.medium).toBe("social");
+    expect(u.campaign).toBe("october-hacker-house");
+    expect(u.content).toBeNull();
+    expect(u.tagged).toBe("https://taikai.network/hh2?utm_source=linkedin&utm_medium=social&utm_campaign=october-hacker-house");
   });
+  test("source → medium mapping", () => {
+    expect(parseUtm("x launch taikai.network").medium).toBe("social");
+    expect(parseUtm("instagram launch taikai.network").medium).toBe("social");
+    expect(parseUtm("newsletter launch taikai.network").medium).toBe("email");
+    const g = parseUtm("google ads spring promo layerx.xyz");
+    expect([g.source, g.medium, g.campaign]).toEqual(["google", "cpc", "spring-promo"]);
+  });
+  test("optional content, lowercase and hyphens", () => {
+    const u = parseUtm("LinkedIn campaign Web Summit 2026 https://layerx.xyz/ws content Banner A");
+    expect(u.campaign).toBe("web-summit-2026");
+    expect(u.content).toBe("banner-a");
+    expect(u.tagged).toContain("utm_content=banner-a");
+  });
+  test("keeps an existing query string", () =>
+    expect(parseUtm("newsletter recap https://taikai.network/?ref=home").tagged).toBe(
+      "https://taikai.network/?ref=home&utm_source=newsletter&utm_medium=email&utm_campaign=recap",
+    ));
+  test("no source yet → no tagged link", () => expect(parseUtm("campaign october taikai.network").tagged).toBeNull());
+  test("slug", () => expect(slug("  Hacker House & Friends!! ")).toBe("hacker-house-and-friends"));
 });
 
-describe("goal", () => {
-  test("read 12 books this year, 4 done", () => expect(parseGoal("read 12 books this year, 4 done")).toMatchObject({ current: 4, target: 12, unit: "books" }));
-  test("x of y", () => expect(parseGoal("4 of 10 workouts")).toMatchObject({ current: 4, target: 10 }));
-  test("slash", () => expect(parseGoal("pages 120/300")).toMatchObject({ current: 120, target: 300 }));
-  test("money with k", () => expect(parseGoal("save 50k for a trip, saved 12k")).toMatchObject({ current: 12000, target: 50000 }));
-  test("no target", () => expect(parseGoal("learn piano").target).toBeNull());
+describe("content idea", () => {
+  test("the brief's example", () =>
+    expect(parseIdea("post about how we ran hacker house with dehouse")).toEqual({
+      idea: "How we ran hacker house with dehouse",
+      brand: null,
+      format: null,
+    }));
+  test("brand and format named in the text", () =>
+    expect(parseIdea("carousel about 5 lessons from web summit for /ai-cmo")).toEqual({
+      idea: "5 lessons from web summit",
+      brand: "ai_cmo",
+      format: "carousel",
+    }));
+  test("one-click choices rewrite the text", () => {
+    const t = withFormat(withBrand("post about how we ran hacker house", "taikai"), "video");
+    expect(t).toBe("post about how we ran hacker house for TAIKAI as a video");
+    const again = withFormat(withBrand(t, "layerx"), "article");
+    expect(again).toBe("post about how we ran hacker house for LayerX as an article");
+    expect(parseIdea(again)).toEqual({ idea: "How we ran hacker house", brand: "layerx", format: "article" });
+  });
+  test("a leading format is replaced, not duplicated", () =>
+    expect(withFormat("carousel about web summit", "article")).toBe("post about web summit as an article"));
+});
+
+describe("lead", () => {
+  test("the brief's example, follow-up in 3 working days", () => {
+    const l = parseLead("met Ana from Sonae, interested in AI workshop", REF);
+    expect([l.name, l.company, l.interest]).toEqual(["Ana", "Sonae", "AI workshop"]);
+    expect(l.followUp).toEqual(new Date(2026, 8, 25)); // Tue → Fri
+    expect(l.followUpSet).toBe(false);
+  });
+  test("working days skip the weekend", () => expect(addWorkingDays(new Date(2026, 8, 24), 3)).toEqual(new Date(2026, 8, 29))); // Thu → Tue
+  test("explicit follow-up day", () => {
+    const l = parseLead("spoke with joão silva at galp, wants a hackathon, follow up monday", REF);
+    expect([l.name, l.company, l.interest]).toEqual(["João Silva", "Galp", "A hackathon"]);
+    expect(l.followUp).toEqual(new Date(2026, 8, 28));
+    expect(l.followUpSet).toBe(true);
+  });
+  test("name only", () => expect(parseLead("met rui", REF)).toMatchObject({ name: "Rui", company: null, interest: null }));
 });

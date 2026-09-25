@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion, MotionConfig, useReducedMotion, useSpring } from "motion/react";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { registry } from "@/components/intents/registry";
+import { registry, resolved, inSentence } from "@/components/intents/registry";
 import { useDemoScript } from "@/hooks/useDemoScript";
 import { useIntent } from "@/hooks/useIntent";
 import { activeIntent, type DecideMemory, decide, force, initialMemory, promote } from "@/lib/decide";
@@ -41,11 +41,11 @@ function useSearchFlags() {
 
 /** Everything about the current card that isn't the typed data itself. */
 function derive<K extends CardIntent>(intent: K, text: string, signals: GatedSignals) {
-  const data = parseFor(intent, text, { colorMood: signals.colorMood });
+  const data = parseFor(intent, text);
   const def = registry[intent];
   return {
     edge: def.edge?.(signals, data) ?? null,
-    summary: def.summary(data),
+    summary: def.summary(resolved(intent, data, signals)),
     completeness: parsers[intent].complete(data),
   };
 }
@@ -59,8 +59,8 @@ function IntentCard<K extends CardIntent>(props: {
   editing: boolean;
   onConfirm: () => void;
 }) {
-  const { intent, text, signals } = props;
-  const data = useMemo(() => parseFor(intent, text, { colorMood: signals.colorMood }), [intent, text, signals.colorMood]);
+  const { intent, text } = props;
+  const data = useMemo(() => parseFor(intent, text), [intent, text]);
   return <CardView {...props} data={data} />;
 }
 
@@ -115,7 +115,7 @@ export function Shapeshift() {
 
   // Announce commits (and completions) for screen readers.
   const committedIntent = ui.kind === "committed" ? ui.intent : null;
-  const liveMessage = committedIntent ? `Showing ${registry[committedIntent].label.toLowerCase()} card` : announcement;
+  const liveMessage = committedIntent ? `Showing ${inSentence(registry[committedIntent].label)} card` : announcement;
 
   /** Clear the input. When editing a saved item, it returns to the list unchanged. */
   const reset = () => {
@@ -137,11 +137,11 @@ export function Shapeshift() {
     if (editingId !== null) {
       // Save edits in place, keeping the item's position in the list.
       savedItems.update((list) => list.map((x) => (x.id === editingId ? { ...x, intent: target, summary, text } : x)));
-      setAnnouncement(`Updated ${registry[target].label.toLowerCase()}: ${summary}`);
+      setAnnouncement(`Updated ${inSentence(registry[target].label)}: ${summary}`);
     } else {
       const item: SavedItem = { id: draftId, intent: target, summary, text, createdAt: Date.now() };
       savedItems.update((list) => (flags.demo ? [item, ...list].slice(0, 9) : [item, ...list])); // demo list is in-memory
-      setAnnouncement(`Added ${registry[target].label.toLowerCase()}: ${summary}`);
+      setAnnouncement(`Added ${inSentence(registry[target].label)}: ${summary}`);
     }
     setFlyingId(editingId ?? draftId);
     // Saving with the button (or a card control) keeps you in flow: focus returns to the input.
@@ -173,7 +173,7 @@ export function Shapeshift() {
   const remove = (item: SavedItem) => {
     const index = savedItems.getSnapshot().findIndex((x) => x.id === item.id);
     savedItems.update((list) => list.filter((x) => x.id !== item.id));
-    setAnnouncement(`Deleted ${registry[item.intent].label.toLowerCase()}: ${item.summary}`);
+    setAnnouncement(`Deleted ${inSentence(registry[item.intent].label)}: ${item.summary}`);
     notify(item.summary, {
       lead: "Deleted",
       id: "deleted",
@@ -217,6 +217,14 @@ export function Shapeshift() {
           el.focus();
           const end = el.value.endsWith("?") ? el.value.length - 1 : el.value.length;
           el.setSelectionRange(end, end);
+        });
+      },
+      rewrite: (next: (text: string) => string) => {
+        setText((t) => next(t));
+        requestAnimationFrame(() => {
+          const el = inputRef.current;
+          el?.focus();
+          el?.setSelectionRange(el.value.length, el.value.length);
         });
       },
     }),

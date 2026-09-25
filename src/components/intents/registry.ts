@@ -1,87 +1,87 @@
 import {
   AlarmClock,
-  CalendarClock,
-  Dices,
-  Globe,
-  Target,
   Bell,
-  Briefcase,
-  CalendarDays,
   Calculator,
+  CalendarDays,
   CircleAlert,
   Coffee,
   Contact,
   Focus,
+  Globe,
+  Lightbulb,
   Link2,
   ListChecks,
-  Palette,
   Repeat,
-  Ruler,
   ShoppingCart,
-  StickyNote,
-  Sun,
+  Tags,
   Timer,
-  Users,
-  Vote,
-  Wallet,
+  UserRound,
 } from "lucide-react";
 import type { CardIntent } from "@/lib/jev/types";
-import { formatAmount } from "@/lib/parse/common";
-import { UNIT_LABELS } from "@/lib/parse/convert";
+import type { ParsedMap } from "@/lib/parse";
+import { BRAND_LABEL, FORMAT_LABEL } from "@/lib/parse/marketing";
 import { formatClock } from "@/lib/parse/timer";
-import { describeRandom } from "@/lib/parse/random";
 import { formatIn } from "@/lib/parse/timezone";
 import type { GatedSignals } from "@/lib/signals";
 import { CalcCard } from "./CalcCard";
-import { CountdownCard } from "./CountdownCard";
-import { GoalCard } from "./GoalCard";
-import { RandomCard } from "./RandomCard";
-import { TimezoneCard } from "./TimezoneCard";
-import { ColorPicker } from "./ColorPicker";
 import { ContactCard } from "./ContactCard";
-import { ConvertCard } from "./ConvertCard";
 import { EventCard } from "./EventCard";
-import { ExpenseRow } from "./ExpenseRow";
-import { HabitCard } from "./HabitCard";
-import { CATEGORY_ICON, TRANSPORT_ICON } from "./icons";
+import { IdeaCard } from "./IdeaCard";
+import { LeadCard } from "./LeadCard";
 import { LinkCard } from "./LinkCard";
-import { NoteCard } from "./NoteCard";
-import { PollCard } from "./PollCard";
 import { ReminderPill } from "./ReminderPill";
 import { formatWhen } from "./shared";
-import { SplitCard } from "./SplitCard";
 import { TimerRing } from "./TimerRing";
+import { TimezoneCard } from "./TimezoneCard";
 import { TodoList } from "./TodoList";
-import { TravelCard } from "./TravelCard";
 import type { BadgeSpec, Registry } from "./types";
+import { UtmCard } from "./UtmCard";
 
 const repeats = (s: GatedSignals): BadgeSpec[] => (s.recurring ? [{ id: "repeat", label: "Repeats", icon: Repeat }] : []);
 const urgent = (s: GatedSignals): BadgeSpec[] => (s.urgent ? [{ id: "urgent", label: "Urgent", icon: CircleAlert, tone: "caution" }] : []);
 
-const TONE_LABEL = {
-  neutral: "Note",
-  positive: "Upbeat note",
-  excited: "Excited note",
-  stressed: "Stressed note",
-  reflective: "Reflective note",
-} as const;
-
-const TONE_EDGE = {
-  neutral: null,
-  positive: "var(--positive)",
-  excited: "var(--brand)",
-  stressed: "var(--caution)",
-  reflective: "var(--line-strong)",
-} as const;
-
 /**
  * intent → everything needed to render it. Adding a UI type means one entry here,
  * one criterion in questions.ts, one parser and one component.
+ * Order is the order of the "/" palette: marketing cards first.
  */
 export const registry: Registry = {
+  utm: {
+    label: "UTM link",
+    example: "linkedin campaign october hacker house taikai.network/hh2",
+    icon: Tags,
+    signals: [],
+    summary: (d) => d.tagged ?? ([d.source, d.campaign].filter(Boolean).join(" · ") || "UTM link"),
+    Component: UtmCard,
+  },
+  idea: {
+    label: "Content idea",
+    example: "post about how we ran hacker house with dehouse",
+    icon: Lightbulb,
+    signals: ["brand", "contentFormat"],
+    resolve: (d, s) => ({ ...d, brand: d.brand ?? s.brand, format: d.format ?? s.contentFormat }),
+    summary: (d) =>
+      [d.idea || "Content idea", d.brand && BRAND_LABEL[d.brand], d.format && FORMAT_LABEL[d.format]].filter(Boolean).join(" · "),
+    Component: IdeaCard,
+  },
+  lead: {
+    label: "Lead",
+    example: "met Ana from Sonae, interested in AI workshop",
+    icon: UserRound,
+    signals: [],
+    summary: (d) =>
+      [
+        [d.name || "Lead", d.company].filter(Boolean).join(", "),
+        d.interest,
+        `Follow up ${formatWhen(d.followUp, false).day}`,
+      ]
+        .filter(Boolean)
+        .join(" · "),
+    Component: LeadCard,
+  },
   event: {
     label: "Event",
-    example: "dinner with priya friday 8pm",
+    example: "call with the dehouse team tuesday 3pm on meet",
     icon: CalendarDays,
     signals: ["eventMode", "recurring"],
     badges: repeats,
@@ -90,7 +90,7 @@ export const registry: Registry = {
   },
   reminder: {
     label: "Reminder",
-    example: "remind me to call mom tomorrow",
+    example: "remind me to send the newsletter friday 9am",
     icon: Bell,
     signals: ["urgency", "recurring"],
     badges: (s) => [...urgent(s), ...repeats(s)],
@@ -100,7 +100,7 @@ export const registry: Registry = {
   },
   todo: {
     label: "Checklist",
-    example: "buy milk, eggs, bread and coffee",
+    example: "launch checklist: brief, visuals, landing page, emails",
     icon: ListChecks,
     signals: ["isShoppingList", "urgency"],
     headerIcon: (s) => (s.isShoppingList ? ShoppingCart : ListChecks),
@@ -119,51 +119,6 @@ export const registry: Registry = {
     summary: (d) => [d.label || "Timer", d.seconds && formatClock(d.seconds)].filter(Boolean).join(" · "),
     Component: TimerRing,
   },
-  habit: {
-    label: "Habit",
-    example: "meditate every morning",
-    icon: Sun,
-    signals: [],
-    summary: (d) => [d.title || "Habit", d.label].filter(Boolean).join(" · "),
-    Component: HabitCard,
-  },
-  color: {
-    label: "Color",
-    example: "#ff6b35",
-    icon: Palette,
-    signals: ["colorMood"],
-    summary: (d) => [d.name ? d.name[0].toUpperCase() + d.name.slice(1) : "Color", d.hex?.toUpperCase()].filter(Boolean).join(" · "),
-    Component: ColorPicker,
-  },
-  split: {
-    label: "Split",
-    example: "split 2400 between 3",
-    icon: Users,
-    signals: [],
-    summary: (d) =>
-      d.total && d.people ? `${formatAmount(d.total, d.currency)} ÷ ${d.people} = ${formatAmount(d.total / d.people, d.currency)} each` : "Split",
-    Component: SplitCard,
-  },
-  expense: {
-    label: "Expense",
-    example: "spent 450 on uber",
-    icon: Wallet,
-    signals: ["expenseCategory"],
-    headerIcon: (s) => (s.expenseCategory ? CATEGORY_ICON[s.expenseCategory] : Wallet),
-    summary: (d) => [d.amount !== null && formatAmount(d.amount, d.currency), d.item].filter(Boolean).join(" · ") || "Expense",
-    Component: ExpenseRow,
-  },
-  convert: {
-    label: "Convert",
-    example: "5 miles in km",
-    icon: Ruler,
-    signals: [],
-    summary: (d) =>
-      d.value !== null && d.from && d.to && d.result !== null
-        ? `${d.value} ${UNIT_LABELS[d.from] ?? d.from} = ${Number(d.result.toFixed(2))} ${UNIT_LABELS[d.to] ?? d.to}`
-        : "Conversion",
-    Component: ConvertCard,
-  },
   calc: {
     label: "Calculate",
     example: "18% of 3450",
@@ -172,32 +127,9 @@ export const registry: Registry = {
     summary: (d) => (d.result !== null ? `${d.expression} = ${d.result.toLocaleString("en-US")}` : d.expression),
     Component: CalcCard,
   },
-  travel: {
-    label: "Trip",
-    example: "flight to goa next weekend",
-    icon: TRANSPORT_ICON.flight,
-    signals: ["transport", "tripType"],
-    headerIcon: (s) => TRANSPORT_ICON[s.transport ?? "unspecified"],
-    badges: (s) =>
-      s.tripType === "work"
-        ? [{ id: "work", label: "Work", icon: Briefcase }]
-        : s.tripType === "leisure"
-          ? [{ id: "leisure", label: "Leisure", icon: Sun }]
-          : [],
-    summary: (d) => (d.destination ? `Trip to ${d.destination}` : "Trip"),
-    Component: TravelCard,
-  },
-  poll: {
-    label: "Poll",
-    example: "pizza or burgers for friday?",
-    icon: Vote,
-    signals: ["hasExplicitOptions"],
-    summary: (d) => d.title || d.options.join(" / ") || "Poll",
-    Component: PollCard,
-  },
   contact: {
     label: "Contact",
-    example: "rahul 98200 12345 rahul@mail.com",
+    example: "ana silva +351 912 345 678 ana@sonae.pt",
     icon: Contact,
     signals: [],
     summary: (d) => [d.name || "Contact", d.phone ?? d.email].filter(Boolean).join(" · "),
@@ -211,51 +143,24 @@ export const registry: Registry = {
     summary: (d) => [d.domain ?? "Link", d.note].filter(Boolean).join(" · "),
     Component: LinkCard,
   },
-  countdown: {
-    label: "Countdown",
-    example: "days until christmas",
-    icon: CalendarClock,
-    signals: [],
-    summary: (d) =>
-      d.days === null ? d.title || "Countdown" : d.days === 0 ? `${d.title || "It"} is today` : `${Math.abs(d.days)} days ${d.days < 0 ? "since" : "until"} ${d.title || "then"}`,
-    Component: CountdownCard,
-  },
   timezone: {
     label: "Time zone",
-    example: "3pm pst in ist",
+    example: "3pm lisbon in new york",
     icon: Globe,
     signals: [],
     summary: (d) =>
       d.to && d.instant ? `${formatIn(d.from.tz, d.instant)} ${d.from.label} → ${formatIn(d.to.tz, d.instant)} ${d.to.label}` : "Time zones",
     Component: TimezoneCard,
   },
-  random: {
-    label: "Random",
-    example: "roll 2d6",
-    icon: Dices,
-    signals: [],
-    summary: (d) => describeRandom(d),
-    Component: RandomCard,
-  },
-  goal: {
-    label: "Goal",
-    example: "read 12 books this year, 4 done",
-    icon: Target,
-    signals: [],
-    summary: (d) => (d.target ? `${d.title || "Goal"} · ${d.current}/${d.target}${d.unit ? ` ${d.unit}` : ""}` : d.title || "Goal"),
-    Component: GoalCard,
-  },
-  note: {
-    label: "Note",
-    example: "the city felt so quiet this morning",
-    icon: StickyNote,
-    signals: ["tone", "isQuestion"],
-    // The edge color is always paired with a tone word in the header, never color alone.
-    headerLabel: (s) => (s.tone ? TONE_LABEL[s.tone] : "Note"),
-    edge: (s) => (s.tone ? TONE_EDGE[s.tone] : null),
-    summary: (d) => d.title,
-    Component: NoteCard,
-  },
 };
 
 export const CARD_INTENTS = Object.keys(registry) as CardIntent[];
+
+/** A card label mid-sentence: "Add content idea", but acronyms stay as written: "Add UTM link". */
+export const inSentence = (label: string) => (/^[A-Z]{2}/.test(label) ? label : label.charAt(0).toLowerCase() + label.slice(1));
+
+/** The card's data with Jev-decided fields filled in, for summaries and "Send to". */
+export function resolved<K extends CardIntent>(intent: K, data: ParsedMap[K], signals: GatedSignals) {
+  const def = registry[intent];
+  return def.resolve ? def.resolve(data, signals) : data;
+}

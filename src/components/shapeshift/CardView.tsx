@@ -2,7 +2,7 @@
 
 import { CornerDownLeft } from "lucide-react";
 import { AnimatePresence, motion, type MotionValue, useReducedMotion, useTransform } from "motion/react";
-import { registry } from "@/components/intents/registry";
+import { registry, resolved, inSentence } from "@/components/intents/registry";
 import { IconSwap } from "@/components/intents/shared";
 import type { BadgeSpec } from "@/components/intents/types";
 import { Badge } from "@/components/ui/badge";
@@ -83,14 +83,14 @@ export function CardView<K extends CardIntent>({ intent, data, text, signals, re
 
       {!ghost && (
         <motion.div layout="position">
-          <SendToRow intent={intent} data={data} text={text} />
+          <SendToRow intent={intent} data={resolved(intent, data, signals)} text={text} />
         </motion.div>
       )}
 
       <motion.div layout="position" className="flex min-h-8 flex-wrap items-center justify-between gap-2">
         {ghost ? (
           <span className="flex items-center gap-1.5 text-[13px] font-medium text-muted-foreground">
-            <Kbd>Tab</Kbd> to keep as {def.label.toLowerCase()}
+            <Kbd>Tab</Kbd> to keep as {inSentence(def.label)}
           </span>
         ) : (
           <>
@@ -99,7 +99,7 @@ export function CardView<K extends CardIntent>({ intent, data, text, signals, re
             </span>
             <motion.div style={{ opacity: btnOpacity, y: btnY }}>
               <Button size="sm" onClick={onConfirm} className="gap-1.5 rounded-full pr-2 pl-3">
-                {editing ? "Save" : "Add"} {def.label.toLowerCase()}
+                {editing ? "Save" : "Add"} {inSentence(def.label)}
                 <CornerDownLeft className="size-3.5 opacity-60" aria-hidden />
               </Button>
             </motion.div>

@@ -57,10 +57,10 @@ describe("hysteresis", () => {
 
   test("strong challenger (≥0.85) switches immediately", () => {
     const s = run([
-      [{ note: 0.75 }, "a warm sunset"],
-      [{ color: 0.9 }, "a warm sunset orange"],
+      [{ link: 0.75 }, "linkedin taikai.network/hh2"],
+      [{ utm: 0.9 }, "linkedin campaign taikai.network/hh2"],
     ]);
-    expect(s[1].ui).toEqual({ kind: "committed", intent: "color" });
+    expect(s[1].ui).toEqual({ kind: "committed", intent: "utm" });
   });
 
   test("alternating challengers never switch", () => {
@@ -104,11 +104,11 @@ describe("hysteresis", () => {
 
 describe("forced intents", () => {
   test("stay locked through small edits, release on big ones", () => {
-    let mem = force("poll", "pizza or burgers");
-    mem = decide(mem, result({ note: 0.9 }), "pizza or burgers?");
-    expect(mem.ui).toEqual({ kind: "committed", intent: "poll", forced: true });
-    mem = decide(mem, result({ note: 0.9 }), "completely different text now");
-    expect(mem.ui).toEqual({ kind: "committed", intent: "note" });
+    let mem = force("idea", "post about hacker house");
+    mem = decide(mem, result({ event: 0.9 }), "post about hacker house!");
+    expect(mem.ui).toEqual({ kind: "committed", intent: "idea", forced: true });
+    mem = decide(mem, result({ event: 0.9 }), "completely different text now");
+    expect(mem.ui).toEqual({ kind: "committed", intent: "event" });
   });
   test("Levenshtein threshold at 30%", () => {
     expect(changedSubstantially("pizza or burgers", "pizza or burger")).toBe(false);

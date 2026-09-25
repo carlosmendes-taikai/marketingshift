@@ -11,13 +11,13 @@ Marketingshift is a fork of [Shapeshift](https://github.com/anishfn/shapeshift) 
 </p>
 
 ```
-dinner with priya friday 8pm on zoom   →  Event card · Friday · 8 PM · Priya · Video call
-buy milk, eggs, bread and coffee       →  Shopping checklist
-split 2400 between 3                   →  ₹800 each
-minecraft diamond                      →  #4AEDD9
+linkedin campaign october hacker house taikai.network/hh2  →  UTM link · utm_source=linkedin&utm_medium=social…
+post about how we ran hacker house with dehouse             →  Content idea · TAIKAI · LinkedIn post
+met Ana from Sonae, interested in AI workshop               →  Lead · Ana, Sonae · follow up in 3 working days
+call with the dehouse team tuesday 3pm on meet              →  Event · Tuesday · 3 PM · Google Meet
 ```
 
-Intent is classified by [TypeSafe AI](https://typesafe.ai)'s **Jev** model, called through the [Vercel AI Gateway](https://vercel.com/ai-gateway) with the AI SDK's `experimental_evaluate`: one call answers 14 typed questions in parallel (which card, plus signals like "is it a video call?", "is it urgent?"). Everything else — dates, amounts, units, math — is deterministic code. **Jev decides, code computes.**
+Intent is classified by [TypeSafe AI](https://typesafe.ai)'s **Jev** model, called through the [Vercel AI Gateway](https://vercel.com/ai-gateway) with the AI SDK's `experimental_evaluate`: one call answers 9 typed questions in parallel (which card, plus signals like "is it a video call?", "is it urgent?", "which brand should publish this idea?"). Everything else — dates, amounts, units, math — is deterministic code. **Jev decides, code computes.**
 
 <p align="center"><img src="docs/diagrams/jev-fanout.svg" alt="One Jev call answers 14 questions in parallel; a deterministic parser reads the same text for values" width="820"></p>
 
@@ -47,6 +47,7 @@ Restart `bun dev`. The latency readout in the bottom-right corner switches from 
 | --- | --- | --- |
 | `AI_GATEWAY_API_KEY` | _(empty)_ | Enables the online model via the Vercel AI Gateway. Empty or placeholder values keep you offline. |
 | `JEV_MODEL` | `typesafe-ai/jev` | Model id on the AI Gateway. |
+| `SHEETS_WEBHOOK_URL` | _(empty)_ | Google Sheets Apps Script web app URL for "Send to Google Sheets". |
 | `NEXT_PUBLIC_USE_MOCK` | `false` | `true` forces offline even with a key. |
 | `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | Used for Open Graph metadata. |
 
@@ -54,25 +55,25 @@ Restart `bun dev`. The latency readout in the bottom-right corner switches from 
 
 | Card | Try |
 | --- | --- |
-| Event | `lunch with rahul and anna tomorrow` |
-| Reminder | `remind me to pay rent tomorrow urgent` |
-| Checklist | `buy milk, eggs, bread and coffee` |
+| UTM link | `linkedin campaign october hacker house taikai.network/hh2` |
+| Content idea | `post about how we ran hacker house with dehouse` |
+| Lead | `met Ana from Sonae, interested in AI workshop` |
+| Event | `call with the dehouse team tuesday 3pm on meet` |
+| Reminder | `remind me to send the newsletter friday urgent` |
+| Checklist | `launch checklist: brief, visuals, landing page, emails` |
 | Timer | `25 min focus` |
-| Habit | `gym 3x a week` |
-| Color | `#ff6b35`, `tiffany blue`, `minecraft diamond` |
-| Split | `split 2400 between 3` |
-| Expense | `spent 450 on uber` |
-| Convert | `5 miles in km`, `72f to c` |
 | Calculate | `18% of 3450` |
-| Trip | `flight to goa next weekend` |
-| Poll | `pizza or burgers for friday?` |
-| Contact | `rahul 98200 12345 rahul@mail.com` |
+| Contact | `ana silva +351 912 345 678 ana@sonae.pt` |
 | Bookmark | `https://vercel.com/blog check later` |
-| Countdown | `days until christmas` |
-| Time zone | `3pm pst in ist`, `what time is it in tokyo` |
-| Random | `roll 2d6`, `flip a coin`, `pick one: tacos, sushi or pizza` |
-| Goal | `read 12 books this year, 4 done` |
-| Note | anything else |
+| Time zone | `3pm lisbon in new york`, `what time is it in tokyo` |
+
+**UTM link** builds a tagged URL (source, medium, campaign, optional `content …`), lowercase with hyphens. Common sources map to a medium: LinkedIn, X, Instagram → `social`; newsletter → `email`; Google Ads → `cpc`.
+**Content idea** shows the idea plus Jev's pick of brand (LayerX, TAIKAI, /ai-cmo) and format (LinkedIn post, carousel, article, video). Clicking another option writes it into the text ("… for TAIKAI as a carousel"), so the choice is saved with the card.
+**Lead** shows name, company, interest and a follow-up date, three working days later unless you type one ("follow up monday").
+
+### Send to
+
+Every card has a **Send to** row. Events, reminders and leads get **Add to Google Calendar** (a prefilled link, no login). Every card can be sent to **Google Sheets** as a new row through a small Apps Script web app: see [docs/google-sheets.md](docs/google-sheets.md). Its URL is read on the server from `SHEETS_WEBHOOK_URL`.
 
 Saved cards live in your browser (`localStorage`) until you delete them. Click one to edit it.
 
@@ -125,7 +126,7 @@ bun test         # parser, decision, signal and classifier tests
 bun run build
 ```
 
-Stack: Next.js (App Router) · React 19 · TypeScript (strict) · Tailwind CSS v4 · shadcn/ui · Motion · chrono-node · zod.
+Stack: Next.js (App Router) · React 19 · TypeScript (strict) · Tailwind CSS v4 · shadcn/ui · Motion · chrono-node · zod · Vercel AI SDK.
 
 ## Credits and license
 

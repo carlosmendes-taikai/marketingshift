@@ -25,6 +25,8 @@ export type IntentDef<K extends CardIntent> = {
   badges?: (s: GatedSignals, d: ParsedMap[K]) => BadgeSpec[];
   /** A 3px left edge color, e.g. caution for urgent reminders or tone for notes. */
   edge?: (s: GatedSignals, d: ParsedMap[K]) => string | null;
+  /** Fill in fields Jev decides (e.g. a content idea's brand) before the card is summarized or sent. */
+  resolve?: (d: ParsedMap[K], s: GatedSignals) => ParsedMap[K];
   /** One line for the recent stack. */
   summary: (d: ParsedMap[K]) => string;
   Component: ComponentType<CardProps<ParsedMap[K]>>;

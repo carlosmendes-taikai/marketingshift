@@ -24,34 +24,6 @@ export function tidy(s: string) {
   return out.trim();
 }
 
-export type Currency = "₹" | "$" | "€" | "£";
-export const DEFAULT_CURRENCY: Currency = "₹";
-
-export function detectCurrency(text: string): Currency {
-  if (/\$|\busd\b|dollars?\b/i.test(text)) return "$";
-  if (/€|\beur(os?)?\b/i.test(text)) return "€";
-  if (/£|\bgbp\b|pounds? sterling/i.test(text)) return "£";
-  return DEFAULT_CURRENCY;
-}
-
-export const AMOUNT_RE = /(?:₹|rs\.?|inr|\$|€|£)?\s?(\d[\d,]*(?:\.\d+)?)\s?(k\b)?/i;
-
-export function toNumber(raw: string): number {
-  return Number(raw.replace(/,/g, ""));
-}
-
-/** Find the first money-like amount in the text. */
-export function findAmount(text: string): { value: number; index: number; length: number } | null {
-  const re = new RegExp(AMOUNT_RE.source, "gi");
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(text))) {
-    const n = toNumber(m[1]);
-    if (!Number.isFinite(n)) continue;
-    return { value: m[2] ? n * 1000 : n, index: m.index, length: m[0].length };
-  }
-  return null;
-}
-
 export type DateHit = {
   start: Date;
   end: Date | null;
@@ -77,16 +49,4 @@ export function findDate(text: string, ref: Date = new Date()): DateHit | null {
 
 export function removeRange(text: string, index: number, length: number) {
   return text.slice(0, index) + " " + text.slice(index + length);
-}
-
-export function formatAmount(n: number, currency: Currency = DEFAULT_CURRENCY) {
-  const locale = currency === "₹" ? "en-IN" : "en-US";
-  const rounded = Math.round(n * 100) / 100;
-  return (
-    currency +
-    rounded.toLocaleString(locale, {
-      minimumFractionDigits: Number.isInteger(rounded) ? 0 : 2,
-      maximumFractionDigits: 2,
-    })
-  );
 }
