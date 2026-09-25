@@ -1,13 +1,15 @@
 "use client";
 
-import { CalendarPlus, Check, LoaderCircle, Sheet } from "lucide-react";
+import { CalendarPlus, Check, LoaderCircle, Settings2, Sheet } from "lucide-react";
 import { useState } from "react";
 import { registry } from "@/components/intents/registry";
 import { Button } from "@/components/ui/button";
 import { eventCalendarUrl, leadCalendarUrl, reminderCalendarUrl } from "@/lib/connectors/googleCalendar";
+import { getSheetsUrl } from "@/lib/connectors/sheetsLink";
 import type { CardIntent } from "@/lib/jev/types";
 import { notify } from "@/lib/notify";
 import type { ParsedMap } from "@/lib/parse";
+import { SheetsSetupDialog } from "./SheetsSetupDialog";
 
 type Props<K extends CardIntent> = { intent: K; data: ParsedMap[K]; text: string };
 
@@ -38,16 +40,23 @@ function calendarUrl<K extends CardIntent>(intent: K, data: ParsedMap[K]) {
 /** Hand the current card to another app. Each connector is one button. */
 export function SendToRow<K extends CardIntent>({ intent, data, text }: Props<K>) {
   const [sheets, setSheets] = useState<"idle" | "sending" | "sent">("idle");
+  // Rendered only in the browser (cards appear after typing), so reading storage here is safe.
+  const [connected, setConnected] = useState(() => getSheetsUrl() !== null);
+  const [setupOpen, setSetupOpen] = useState(false);
   const calendar = calendarUrl(intent, data);
 
-  async function sendToSheets() {
+  async function sendToSheets(url = getSheetsUrl()) {
+    if (!url) {
+      setSetupOpen(true);
+      return;
+    }
     setSheets("sending");
     const def = registry[intent];
     try {
       const res = await fetch("/api/send/sheets", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ intent, label: def.label, summary: def.summary(data), text, data }, localDates),
+        body: JSON.stringify({ url, intent, label: def.label, summary: def.summary(data), text, data }, localDates),
       });
       if (!res.ok) {
         const { error } = await res.json().catch(() => ({ error: null }));
@@ -73,7 +82,7 @@ export function SendToRow<K extends CardIntent>({ intent, data, text }: Props<K>
           </a>
         </Button>
       )}
-      <Button variant="outline" size="sm" className="rounded-full" onMouseDown={keepFocus} onClick={sendToSheets} disabled={sheets === "sending"}>
+      <Button variant="outline" size="sm" className="rounded-full" onMouseDown={keepFocus} onClick={() => sendToSheets()} disabled={sheets === "sending"}>
         {sheets === "sending" ? (
           <LoaderCircle aria-hidden className="animate-spin" />
         ) : sheets === "sent" ? (
@@ -81,8 +90,31 @@ export function SendToRow<K extends CardIntent>({ intent, data, text }: Props<K>
         ) : (
           <Sheet aria-hidden />
         )}
-        {sheets === "sent" ? "Added" : "Send to Google Sheets"}
+        {sheets === "sent" ? "Added" : connected ? "Send to Google Sheets" : "Connect Google Sheets"}
       </Button>
+      {connected && (
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          className="rounded-full text-muted-foreground"
+          onMouseDown={keepFocus}
+          onClick={() => setSetupOpen(true)}
+          aria-label="Change or disconnect your Google Sheet"
+          title="Change or disconnect your Google Sheet"
+        >
+          <Settings2 aria-hidden />
+        </Button>
+      )}
+      <SheetsSetupDialog
+        open={setupOpen}
+        onOpenChange={setSetupOpen}
+        onSaved={(url) => {
+          setSetupOpen(false);
+          setConnected(url !== null);
+          if (url) sendToSheets(url);
+          else notify("Google Sheet disconnected", { id: "sheets" });
+        }}
+      />
     </div>
   );
 }

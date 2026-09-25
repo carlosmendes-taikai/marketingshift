@@ -41,10 +41,10 @@ describe("Google Calendar links", () => {
 
 describe("Lead follow-up", () => {
   test("all-day entry on the follow-up date", () => {
-    const p = params(leadCalendarUrl(parseLead("met Ana from Sonae, interested in AI workshop", REF)));
-    expect(p.get("text")).toBe("Follow up with Ana (Sonae)");
+    const p = params(leadCalendarUrl(parseLead("met Ana from Acme, interested in a product demo", REF)));
+    expect(p.get("text")).toBe("Follow up with Ana (Acme)");
     expect(p.get("dates")).toBe("20260930/20261001"); // Fri 25 Sep + 3 working days = Wed 30 Sep
-    expect(p.get("details")).toBe("Interested in: AI workshop");
+    expect(p.get("details")).toBe("Interested in: Product demo");
   });
 });
 

@@ -73,7 +73,6 @@ export async function classifyWithJev(text: string, signal?: AbortSignal): Promi
       eventMode: answer("eventMode", a.eventMode),
       timerKind: answer("timerKind", a.timerKind),
       isShoppingList: a.isShoppingList.probability,
-      brand: answer("brand", a.brand),
       contentFormat: answer("contentFormat", a.contentFormat),
     },
     latencyMs,

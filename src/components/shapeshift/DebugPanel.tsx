@@ -53,7 +53,6 @@ export function DebugPanel({ result, mem, gated }: { result: IntentResult; mem: 
       </div>
       <Dist name="eventMode" a={s.eventMode} />
       <Dist name="timerKind" a={s.timerKind} />
-      <Dist name="brand" a={s.brand} />
       <Dist name="contentFormat" a={s.contentFormat} />
     </aside>
   );

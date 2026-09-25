@@ -15,7 +15,7 @@ function concentration(probabilities: Record<string, number> | undefined) {
   return Math.max(0, Math.min(1, (values.length * peak - 1) / (values.length - 1)));
 }
 
-// The post grader's questions, unchanged.
+// Post draft questions: hook strength, audience, and whether it reads as AI-written.
 const HOOK_LEVELS = [
   "Generic or forgettable: a first line a professional scrolls past without noticing",
   "Weak: a first line with a faint point of interest, but vague or predictable",

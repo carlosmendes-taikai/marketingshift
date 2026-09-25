@@ -44,7 +44,7 @@ export function parseLead(text: string, ref: Date = new Date()): LeadData {
   let interest: string | null = null;
   const i = rest.match(INTEREST);
   if (i && i.index !== undefined) {
-    interest = capitalize(tidy(i[1].replace(/[.!]+$/, ""))) || null;
+    interest = capitalize(tidy(i[1].replace(/[.!]+$/, "").replace(/^(?:a|an|the|some)\s+/i, ""))) || null;
     rest = rest.slice(0, i.index);
   }
 

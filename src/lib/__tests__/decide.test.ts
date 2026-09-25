@@ -57,8 +57,8 @@ describe("hysteresis", () => {
 
   test("strong challenger (≥0.85) switches immediately", () => {
     const s = run([
-      [{ link: 0.75 }, "linkedin taikai.network/hh2"],
-      [{ utm: 0.9 }, "linkedin campaign taikai.network/hh2"],
+      [{ link: 0.75 }, "linkedin acme.com/launch"],
+      [{ utm: 0.9 }, "linkedin campaign acme.com/launch"],
     ]);
     expect(s[1].ui).toEqual({ kind: "committed", intent: "utm" });
   });
@@ -104,8 +104,8 @@ describe("hysteresis", () => {
 
 describe("forced intents", () => {
   test("stay locked through small edits, release on big ones", () => {
-    let mem = force("idea", "post about hacker house");
-    mem = decide(mem, result({ event: 0.9 }), "post about hacker house!");
+    let mem = force("idea", "post about our spring launch");
+    mem = decide(mem, result({ event: 0.9 }), "post about our spring launch!");
     expect(mem.ui).toEqual({ kind: "committed", intent: "idea", forced: true });
     mem = decide(mem, result({ event: 0.9 }), "completely different text now");
     expect(mem.ui).toEqual({ kind: "committed", intent: "event" });

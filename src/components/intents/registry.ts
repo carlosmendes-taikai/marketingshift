@@ -24,7 +24,7 @@ import {
 import type { CardIntent } from "@/lib/jev/types";
 import type { ParsedMap } from "@/lib/parse";
 import { AB_KIND_LABEL } from "@/lib/parse/abtest";
-import { BRAND_LABEL, FORMAT_LABEL } from "@/lib/parse/marketing";
+import { FORMAT_LABEL } from "@/lib/parse/marketing";
 import { formatMoney } from "@/lib/parse/metrics";
 import { formatClock } from "@/lib/parse/timer";
 import { formatIn } from "@/lib/parse/timezone";
@@ -59,7 +59,7 @@ export const registry: Registry = {
   utm: {
     label: "UTM link",
     group: "marketing",
-    example: "linkedin campaign october hacker house taikai.network/hh2",
+    example: "linkedin campaign spring launch acme.com/launch",
     icon: Tags,
     signals: [],
     summary: (d) => d.tagged ?? ([d.source, d.campaign].filter(Boolean).join(" · ") || "UTM link"),
@@ -68,18 +68,18 @@ export const registry: Registry = {
   idea: {
     label: "Content idea",
     group: "marketing",
-    example: "post about how we ran hacker house with dehouse",
+    example: "post about how we doubled our newsletter signups",
     icon: Lightbulb,
-    signals: ["brand", "contentFormat"],
-    resolve: (d, s) => ({ ...d, brand: d.brand ?? s.brand, format: d.format ?? s.contentFormat }),
+    signals: ["contentFormat"],
+    resolve: (d, s) => ({ ...d, format: d.format ?? s.contentFormat }),
     summary: (d) =>
-      [d.idea || "Content idea", d.brand && BRAND_LABEL[d.brand], d.format && FORMAT_LABEL[d.format]].filter(Boolean).join(" · "),
+      [d.idea || "Content idea", d.format && FORMAT_LABEL[d.format]].filter(Boolean).join(" · "),
     Component: IdeaCard,
   },
   lead: {
     label: "Lead",
     group: "marketing",
-    example: "met Ana from Sonae, interested in AI workshop",
+    example: "met Ana from Acme, interested in a product demo",
     icon: UserRound,
     signals: [],
     summary: (d) =>
@@ -120,7 +120,7 @@ export const registry: Registry = {
   promo: {
     label: "Event promo plan",
     group: "marketing",
-    example: "promote hacker house on nov 15",
+    example: "promote our spring webinar on nov 15",
     icon: Megaphone,
     signals: [],
     summary: (d) =>
@@ -132,7 +132,7 @@ export const registry: Registry = {
   abtest: {
     label: "A/B test",
     group: "marketing",
-    example: "subject: \"Your hacker house recap\" vs \"What 40 builders shipped in 48h\"",
+    example: "subject: \"Your monthly recap\" vs \"3 ideas that doubled our signups\"",
     icon: Split,
     signals: [],
     summary: (d) => `${AB_KIND_LABEL[d.kind]} · ${d.options.join(" vs ") || "no options yet"}`,
@@ -141,7 +141,7 @@ export const registry: Registry = {
   event: {
     label: "Event",
     group: "utility",
-    example: "call with the dehouse team tuesday 3pm on meet",
+    example: "call with the design team tuesday 3pm on meet",
     icon: CalendarDays,
     signals: ["eventMode", "recurring"],
     badges: repeats,
@@ -194,7 +194,7 @@ export const registry: Registry = {
   contact: {
     label: "Contact",
     group: "utility",
-    example: "ana silva +351 912 345 678 ana@sonae.pt",
+    example: "ana silva +1 555 010 0199 ana@acme.com",
     icon: Contact,
     signals: [],
     summary: (d) => [d.name || "Contact", d.phone ?? d.email].filter(Boolean).join(" · "),

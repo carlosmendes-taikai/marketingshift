@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 /** Lets a card write back into the main input — the text stays the source of truth. */
 export const DraftContext = createContext<{
   append: (snippet: string) => void;
-  /** Rewrite the whole input, e.g. to swap "for TAIKAI" for "for LayerX". */
+  /** Rewrite the whole input, e.g. to swap "as a carousel" for "as an article". */
   rewrite: (next: (text: string) => string) => void;
 } | null>(null);
 

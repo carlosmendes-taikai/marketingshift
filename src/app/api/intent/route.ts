@@ -2,6 +2,7 @@ import { classifierMode, classifyWithJev, warnMockOnce } from "@/lib/jev/client"
 import { mockClassify } from "@/lib/jev/mock";
 import { type IntentResult, intentRequestSchema, noneResult } from "@/lib/jev/types";
 import { LRU, normalizeKey } from "@/lib/lru";
+import { allow } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 
@@ -19,7 +20,8 @@ export async function POST(request: Request) {
   if (hit) return Response.json({ ...hit, latencyMs: 0, cached: true } satisfies IntentResult);
 
   const { mode, reason } = classifierMode();
-  if (mode === "offline") {
+  // Over this visitor's limit: answer with the free offline classifier instead of Jev.
+  if (mode === "offline" || !allow("intent", request)) {
     warnMockOnce(reason);
     return Response.json(mockClassify(text));
   }

@@ -5,18 +5,18 @@ import { useEffect, useState } from "react";
 import { tween } from "@/lib/motion";
 
 const EXAMPLES = [
-  "linkedin campaign october hacker house taikai.network/hh2",
-  "post about how we ran hacker house with dehouse",
-  "met Ana from Sonae, interested in AI workshop",
+  "linkedin campaign spring launch acme.com/launch",
+  "post about how we doubled our newsletter signups",
+  "met Ana from Acme, interested in a product demo",
   "linkedin ads 500 spent, 12k impressions, 340 clicks, 25 leads",
-  "promote hacker house on nov 15",
-  'subject: "Your recap" vs "What 40 builders shipped in 48h"',
+  "promote our spring webinar on nov 15",
+  'subject: "Your monthly recap" vs "3 ideas that doubled our signups"',
   "paste a LinkedIn draft to grade it",
-  "call with the dehouse team tuesday 3pm on meet",
+  "call with the design team tuesday 3pm on meet",
   "remind me to send the newsletter friday 9am",
   "launch checklist: brief, visuals, landing page, emails",
-  "newsletter campaign october recap taikai.network/blog",
-  "carousel about 5 lessons from web summit",
+  "newsletter campaign monthly recap acme.com/blog",
+  "carousel about 5 lessons from our first conference",
   "25 min focus",
   "3pm lisbon in new york",
 ];

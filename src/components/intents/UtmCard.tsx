@@ -36,7 +36,7 @@ export function UtmCard({ data, interactive }: CardProps<UtmData>) {
           <p className="min-w-0 flex-1 font-mono text-[12px] leading-[18px] break-all select-all">{data.tagged}</p>
         ) : (
           <Missing className="flex-1 text-[13px] leading-[18px]">
-            {!data.url ? "Add the destination, e.g. taikai.network/hh2" : "Add a source, e.g. linkedin or newsletter"}
+            {!data.url ? "Add the destination, e.g. acme.com/launch" : "Add a source, e.g. linkedin or newsletter"}
           </Missing>
         )}
         {interactive && data.tagged && (

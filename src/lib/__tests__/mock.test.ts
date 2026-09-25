@@ -5,21 +5,21 @@ import { rawState } from "@/lib/decide";
 import { intentResultSchema } from "@/lib/jev/types";
 
 const EXAMPLES: [string, string][] = [
-  ["linkedin campaign october hacker house taikai.network/hh2", "utm"],
-  ["newsletter recap https://taikai.network", "utm"],
-  ["utm google ads spring promo layerx.xyz", "utm"],
-  ["post about how we ran hacker house with dehouse", "idea"],
-  ["carousel about 5 lessons from web summit", "idea"],
+  ["linkedin campaign spring launch acme.com/launch", "utm"],
+  ["newsletter recap https://acme.com", "utm"],
+  ["utm google ads spring promo acme.com", "utm"],
+  ["post about how we doubled our newsletter signups", "idea"],
+  ["carousel about 5 lessons from our first conference", "idea"],
   ["idea: behind the scenes of our ai content engine", "idea"],
-  ["met Ana from Sonae, interested in AI workshop", "lead"],
-  ["spoke with joão at galp, wants a hackathon", "lead"],
-  ["We ran a hacker house for 40 builders. Here is what we learned in 48 hours. Food matters more than you think, and so does sleep. Thanks to everyone who came.", "draft"],
-  ["https://www.linkedin.com/posts/carlos_hackathon-activity-123", "draft"],
+  ["met Ana from Acme, interested in a product demo", "lead"],
+  ["spoke with sam at globex, wants a workshop", "lead"],
+  ["We rebuilt our onboarding in 30 days. Here is what we learned along the way. Fewer steps matter more than you think, and so does clear copy. Thanks to everyone who tested it.", "draft"],
+  ["https://www.linkedin.com/posts/someone_onboarding-activity-123", "draft"],
   ["linkedin ads 500 spent, 12k impressions, 340 clicks, 25 leads", "metrics"],
-  ["promote hacker house on nov 15", "promo"],
-  ['subject: "Your hacker house recap" vs "What 40 builders shipped in 48h"', "abtest"],
+  ["promote our spring webinar on nov 15", "promo"],
+  ['subject: "Your monthly recap" vs "3 ideas that doubled our signups"', "abtest"],
   ["dinner with priya friday 8pm", "event"],
-  ["call with the dehouse team tuesday 3pm on meet", "event"],
+  ["call with the design team tuesday 3pm on meet", "event"],
   ["remind me to call mom tomorrow", "reminder"],
   ["remind me to send the newsletter friday 9am", "reminder"],
   ["buy milk, eggs, bread and coffee", "todo"],
@@ -47,9 +47,8 @@ describe("mock classifier", () => {
   test("short text → none", () => expect(mockClassify("a").intent.value).toBe("none"));
   test("on zoom → video_call", () => expect(mockClassify("dinner with priya friday 8pm on zoom").signals.eventMode.value).toBe("video_call"));
   test("urgent → high urgency", () => expect(mockClassify("remind me to pay rent tomorrow urgent").signals.urgency.score).toBeGreaterThan(1.2));
-  test("content idea brand and format", () => {
-    const r = mockClassify("carousel about hacker house lessons");
-    expect(r.signals.brand.value).toBe("taikai");
+  test("content idea format", () => {
+    const r = mockClassify("carousel about 5 onboarding lessons");
     expect(r.signals.contentFormat.value).toBe("carousel");
   });
   test("plain text with no card → none", () => expect(mockClassify("the city felt quiet this morning").intent.value).toBe("none"));

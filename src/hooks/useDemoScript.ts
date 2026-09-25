@@ -5,13 +5,13 @@ import { useEffect, useRef } from "react";
 type Step = { text: string; then?: string };
 
 export const DEMO_SCRIPT: Step[] = [
-  { text: "linkedin campaign october hacker house", then: " taikai.network/hh2" },
-  { text: "post about how we ran hacker house with dehouse" },
-  { text: "met Ana from Sonae, interested in AI workshop" },
+  { text: "linkedin campaign spring launch", then: " acme.com/launch" },
+  { text: "post about how we doubled our newsletter signups" },
+  { text: "met Ana from Acme, interested in a product demo" },
   { text: "linkedin ads 500 spent, 12k impressions, 340 clicks, 25 leads" },
-  { text: "promote hacker house on nov 15" },
-  { text: 'subject: "Your hacker house recap" vs "What 40 builders shipped in 48h"' },
-  { text: "call with the dehouse team tuesday 3pm", then: " on meet" },
+  { text: "promote our spring webinar on nov 15" },
+  { text: 'subject: "Your monthly recap" vs "3 ideas that doubled our signups"' },
+  { text: "call with the design team tuesday 3pm", then: " on meet" },
   { text: "remind me to send the newsletter friday urgent" },
   { text: "launch checklist: brief, visuals, landing page, emails" },
   { text: "3pm lisbon in new york" },

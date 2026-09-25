@@ -23,12 +23,10 @@ export type CardIntent = Exclude<IntentKey, "none">;
 
 export const EVENT_MODES = ["in_person", "video_call", "phone_call", "unspecified"] as const;
 export const TIMER_KINDS = ["countdown", "focus", "break", "stopwatch"] as const;
-export const BRANDS = ["layerx", "taikai", "ai_cmo"] as const;
 export const CONTENT_FORMATS = ["linkedin_post", "carousel", "article", "video"] as const;
 
 export type EventMode = (typeof EVENT_MODES)[number];
 export type TimerKind = (typeof TIMER_KINDS)[number];
-export type Brand = (typeof BRANDS)[number];
 export type ContentFormat = (typeof CONTENT_FORMATS)[number];
 
 function answerSchema<const T extends readonly [string, ...string[]]>(values: T) {
@@ -52,7 +50,6 @@ export const signalsSchema = z.object({
   eventMode: answerSchema(EVENT_MODES),
   timerKind: answerSchema(TIMER_KINDS),
   isShoppingList: z.number(),
-  brand: answerSchema(BRANDS),
   contentFormat: answerSchema(CONTENT_FORMATS),
 });
 export type Signals = z.infer<typeof signalsSchema>;
@@ -84,7 +81,6 @@ export function neutralSignals(): Signals {
     eventMode: neutralAnswer("unspecified"),
     timerKind: neutralAnswer("countdown"),
     isShoppingList: 0,
-    brand: neutralAnswer("layerx"),
     contentFormat: neutralAnswer("linkedin_post"),
   };
 }

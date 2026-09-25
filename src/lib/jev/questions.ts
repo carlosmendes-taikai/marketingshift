@@ -63,12 +63,7 @@ export const questions = {
   }),
   isShoppingList: noul("The listed items are things to buy"),
 
-  // ── Content ideas: which brand publishes it, in which format ─
-  brand: choice("Which brand should publish this content idea", {
-    layerx: "LayerX, the technology company: its products, services, clients, partnerships and team",
-    taikai: "TAIKAI, the hackathon and open innovation platform: hackathons, builders, challenges and community events such as Hacker House",
-    ai_cmo: "/ai-cmo, a personal brand about using AI in marketing: AI tools, experiments, workflows and lessons from a CMO",
-  }),
+  // ── Content ideas: which format suits them ───────────────
   contentFormat: choice("Which format suits this content idea best", {
     linkedin_post: "A short LinkedIn text post: one story, opinion or announcement",
     carousel: "A LinkedIn carousel: a step-by-step list, framework or visual breakdown across slides",

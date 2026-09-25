@@ -5,7 +5,7 @@ import { parseEvent } from "@/lib/parse/event";
 import { parseIdea } from "@/lib/parse/idea";
 import { addWorkingDays, parseLead } from "@/lib/parse/lead";
 import { parseLink } from "@/lib/parse/link";
-import { withBrand, withFormat } from "@/lib/parse/marketing";
+import { withFormat } from "@/lib/parse/marketing";
 import { parseReminder } from "@/lib/parse/reminder";
 import { formatClock, parseTimer } from "@/lib/parse/timer";
 import { dayShift, formatIn, parseTimezone, wallTimeToInstant } from "@/lib/parse/timezone";
@@ -177,69 +177,67 @@ describe("timezone", () => {
 
 describe("utm", () => {
   test("the brief's example", () => {
-    const u = parseUtm("linkedin campaign october hacker house taikai.network/hh2");
+    const u = parseUtm("linkedin campaign spring launch acme.com/launch");
     expect(u.source).toBe("linkedin");
     expect(u.medium).toBe("social");
-    expect(u.campaign).toBe("october-hacker-house");
+    expect(u.campaign).toBe("spring-launch");
     expect(u.content).toBeNull();
-    expect(u.tagged).toBe("https://taikai.network/hh2?utm_source=linkedin&utm_medium=social&utm_campaign=october-hacker-house");
+    expect(u.tagged).toBe("https://acme.com/launch?utm_source=linkedin&utm_medium=social&utm_campaign=spring-launch");
   });
   test("source → medium mapping", () => {
-    expect(parseUtm("x launch taikai.network").medium).toBe("social");
-    expect(parseUtm("instagram launch taikai.network").medium).toBe("social");
-    expect(parseUtm("newsletter launch taikai.network").medium).toBe("email");
-    const g = parseUtm("google ads spring promo layerx.xyz");
+    expect(parseUtm("x launch acme.com").medium).toBe("social");
+    expect(parseUtm("instagram launch acme.com").medium).toBe("social");
+    expect(parseUtm("newsletter launch acme.com").medium).toBe("email");
+    const g = parseUtm("google ads spring promo acme.com");
     expect([g.source, g.medium, g.campaign]).toEqual(["google", "cpc", "spring-promo"]);
   });
   test("optional content, lowercase and hyphens", () => {
-    const u = parseUtm("LinkedIn campaign Web Summit 2026 https://layerx.xyz/ws content Banner A");
-    expect(u.campaign).toBe("web-summit-2026");
+    const u = parseUtm("LinkedIn campaign Summer Sale 2026 https://acme.com/sale content Banner A");
+    expect(u.campaign).toBe("summer-sale-2026");
     expect(u.content).toBe("banner-a");
     expect(u.tagged).toContain("utm_content=banner-a");
   });
   test("keeps an existing query string", () =>
-    expect(parseUtm("newsletter recap https://taikai.network/?ref=home").tagged).toBe(
-      "https://taikai.network/?ref=home&utm_source=newsletter&utm_medium=email&utm_campaign=recap",
+    expect(parseUtm("newsletter recap https://acme.com/?ref=home").tagged).toBe(
+      "https://acme.com/?ref=home&utm_source=newsletter&utm_medium=email&utm_campaign=recap",
     ));
-  test("no source yet → no tagged link", () => expect(parseUtm("campaign october taikai.network").tagged).toBeNull());
-  test("slug", () => expect(slug("  Hacker House & Friends!! ")).toBe("hacker-house-and-friends"));
+  test("no source yet → no tagged link", () => expect(parseUtm("campaign october acme.com").tagged).toBeNull());
+  test("slug", () => expect(slug("  Spring Launch & Friends!! ")).toBe("spring-launch-and-friends"));
 });
 
 describe("content idea", () => {
   test("the brief's example", () =>
-    expect(parseIdea("post about how we ran hacker house with dehouse")).toEqual({
-      idea: "How we ran hacker house with dehouse",
-      brand: null,
+    expect(parseIdea("post about how we doubled our newsletter signups")).toEqual({
+      idea: "How we doubled our newsletter signups",
       format: null,
     }));
-  test("brand and format named in the text", () =>
-    expect(parseIdea("carousel about 5 lessons from web summit for /ai-cmo")).toEqual({
-      idea: "5 lessons from web summit",
-      brand: "ai_cmo",
+  test("format named in the text", () =>
+    expect(parseIdea("carousel about 5 lessons from our first conference")).toEqual({
+      idea: "5 lessons from our first conference",
       format: "carousel",
     }));
   test("one-click choices rewrite the text", () => {
-    const t = withFormat(withBrand("post about how we ran hacker house", "taikai"), "video");
-    expect(t).toBe("post about how we ran hacker house for TAIKAI as a video");
-    const again = withFormat(withBrand(t, "layerx"), "article");
-    expect(again).toBe("post about how we ran hacker house for LayerX as an article");
-    expect(parseIdea(again)).toEqual({ idea: "How we ran hacker house", brand: "layerx", format: "article" });
+    const t = withFormat("post about how we doubled signups", "video");
+    expect(t).toBe("post about how we doubled signups as a video");
+    const again = withFormat(t, "article");
+    expect(again).toBe("post about how we doubled signups as an article");
+    expect(parseIdea(again)).toEqual({ idea: "How we doubled signups", format: "article" });
   });
   test("a leading format is replaced, not duplicated", () =>
-    expect(withFormat("carousel about web summit", "article")).toBe("post about web summit as an article"));
+    expect(withFormat("carousel about our first conference", "article")).toBe("post about our first conference as an article"));
 });
 
 describe("lead", () => {
   test("the brief's example, follow-up in 3 working days", () => {
-    const l = parseLead("met Ana from Sonae, interested in AI workshop", REF);
-    expect([l.name, l.company, l.interest]).toEqual(["Ana", "Sonae", "AI workshop"]);
+    const l = parseLead("met Ana from Acme, interested in a product demo", REF);
+    expect([l.name, l.company, l.interest]).toEqual(["Ana", "Acme", "Product demo"]);
     expect(l.followUp).toEqual(new Date(2026, 8, 25)); // Tue → Fri
     expect(l.followUpSet).toBe(false);
   });
   test("working days skip the weekend", () => expect(addWorkingDays(new Date(2026, 8, 24), 3)).toEqual(new Date(2026, 8, 29))); // Thu → Tue
   test("explicit follow-up day", () => {
-    const l = parseLead("spoke with joão silva at galp, wants a hackathon, follow up monday", REF);
-    expect([l.name, l.company, l.interest]).toEqual(["João Silva", "Galp", "A hackathon"]);
+    const l = parseLead("spoke with sam lee at globex, wants a workshop, follow up monday", REF);
+    expect([l.name, l.company, l.interest]).toEqual(["Sam Lee", "Globex", "Workshop"]);
     expect(l.followUp).toEqual(new Date(2026, 8, 28));
     expect(l.followUpSet).toBe(true);
   });
@@ -252,19 +250,19 @@ import { parseMetrics } from "@/lib/parse/metrics";
 import { parsePromo } from "@/lib/parse/promo";
 
 describe("post draft", () => {
-  const post = "We ran a hacker house for 40 builders.\n\nHere is what we learned in 48 hours.\n\n1. Food matters\n2. So does sleep\n#hackathon #taikai";
+  const post = "We rebuilt our onboarding in 30 days.\n\nHere is what we learned along the way.\n\n1. Fewer steps\n2. Clearer copy\n#marketing #growth";
   test("counts and first line", () => {
     const d = parseDraft(post);
-    expect(d.firstLine).toBe("We ran a hacker house for 40 builders.");
+    expect(d.firstLine).toBe("We rebuilt our onboarding in 30 days.");
     expect(d.hashtags).toBe(2);
-    expect(d.words).toBe(25);
+    expect(d.words).toBe(23);
     expect(d.linkedinUrl).toBeNull();
   });
-  test("see more cuts at 3 lines", () => expect(seeMorePreview(post)).toBe("We ran a hacker house for 40 builders.\n\nHere is what we learned in 48 hours."));
+  test("see more cuts at 3 lines", () => expect(seeMorePreview(post)).toBe("We rebuilt our onboarding in 30 days.\n\nHere is what we learned along the way."));
   test("short post fits without see more", () => expect(seeMorePreview("Short and sweet.")).toBeNull());
   test("LinkedIn post link", () => {
-    const d = parseDraft("https://www.linkedin.com/posts/carlos_hackathon-activity-123");
-    expect(d.linkedinUrl).toBe("https://www.linkedin.com/posts/carlos_hackathon-activity-123");
+    const d = parseDraft("https://www.linkedin.com/posts/someone_onboarding-activity-123");
+    expect(d.linkedinUrl).toBe("https://www.linkedin.com/posts/someone_onboarding-activity-123");
     expect(d.post).toBe("");
   });
 });
@@ -290,8 +288,8 @@ describe("campaign results", () => {
 
 describe("event promo plan", () => {
   test("timeline from the event date", () => {
-    const p = parsePromo("promote hacker house on nov 15", REF);
-    expect(p.name).toBe("Hacker house");
+    const p = parsePromo("promote our spring webinar on nov 15", REF);
+    expect(p.name).toBe("Spring webinar");
     expect(p.date).toEqual(new Date(2026, 10, 15));
     expect(p.steps.map((s) => [s.label, s.date.getMonth() + 1, s.date.getDate(), s.past])).toEqual([
       ["Announce", 10, 18, false],
@@ -302,17 +300,17 @@ describe("event promo plan", () => {
     ]);
   });
   test("steps already behind us are marked past", () => {
-    const p = parsePromo("promo plan for web summit oct 5", REF);
-    expect(p.name).toBe("Web summit");
+    const p = parsePromo("promo plan for the product launch oct 5", REF);
+    expect(p.name).toBe("Product launch");
     expect(p.steps.filter((s) => s.past).map((s) => s.label)).toEqual(["Announce", "Reminder"]); // Sep 7 and Sep 21
   });
 });
 
 describe("A/B test", () => {
   test("quoted options", () =>
-    expect(parseAbTest('subject: "Your hacker house recap" vs "What 40 builders shipped in 48h"')).toEqual({
+    expect(parseAbTest('subject: "Your monthly recap" vs "3 ideas that doubled our signups"')).toEqual({
       kind: "subject",
-      options: ["Your hacker house recap", "What 40 builders shipped in 48h"],
+      options: ["Your monthly recap", "3 ideas that doubled our signups"],
     }));
   test("unquoted with vs", () =>
     expect(parseAbTest("headline: build faster with ai vs ship in half the time")).toEqual({

@@ -4,6 +4,7 @@ import { gradeOptions, gradePost } from "@/lib/jev/grade";
 import type { OptionsGrade, PostGrade } from "@/lib/jev/gradeTypes";
 import { getLinkedInPost, isUrl, LinkedInError } from "@/lib/jev/linkedin";
 import { LRU } from "@/lib/lru";
+import { allow } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 
@@ -29,6 +30,9 @@ export async function POST(request: Request) {
   const key = JSON.stringify(body.data);
   const hit = cache.get(key);
   if (hit) return Response.json(hit);
+  if (!allow("grade", request)) {
+    return Response.json({ error: "You've graded a lot in a short time. Try again in a minute." }, { status: 429 });
+  }
 
   try {
     let result: PostGrade | OptionsGrade;

@@ -38,7 +38,7 @@ export function parsePromo(text: string, ref: Date = new Date()): PromoData {
   let rest = ` ${collapse(text)} `;
   const hit = findDate(rest, ref);
   if (hit) rest = removeRange(rest, hit.index, hit.text.length);
-  const name = capitalize(tidy(collapse(rest).replace(LEAD_IN, "").replace(/\b(?:event|on)$/i, "")));
+  const name = capitalize(tidy(collapse(rest).replace(LEAD_IN, "").replace(/^(?:our|my|the|a|an)\s+/i, "").replace(/\b(?:event|on)$/i, "")));
   const date = hit ? startOfDay(hit.start) : null;
   return { name, date, steps: date ? promoSteps(date, ref) : [] };
 }

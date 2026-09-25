@@ -1,9 +1,9 @@
 "use client";
 
 import { useContext } from "react";
-import { BRANDS, CONTENT_FORMATS } from "@/lib/jev/types";
+import { CONTENT_FORMATS } from "@/lib/jev/types";
 import type { IdeaData } from "@/lib/parse/idea";
-import { BRAND_LABEL, FORMAT_LABEL, withBrand, withFormat } from "@/lib/parse/marketing";
+import { FORMAT_LABEL, withFormat } from "@/lib/parse/marketing";
 import { cn } from "@/lib/utils";
 import { DraftContext, Field, Meta, Missing } from "./shared";
 import type { CardProps } from "./types";
@@ -11,9 +11,8 @@ import type { CardProps } from "./types";
 export function IdeaCard({ data, signals, interactive }: CardProps<IdeaData>) {
   const draft = useContext(DraftContext);
   // Named in the text wins; otherwise Jev's pick. Clicking writes the choice into the text.
-  const brand = data.brand ?? signals.brand;
   const format = data.format ?? signals.contentFormat;
-  const suggested = (!data.brand && brand) || (!data.format && format);
+  const suggested = !data.format && format;
 
   return (
     <div className="flex flex-col gap-3">
@@ -26,16 +25,6 @@ export function IdeaCard({ data, signals, interactive }: CardProps<IdeaData>) {
       </Field>
       <Field index={1}>
         <Options
-          label="Brand"
-          values={BRANDS}
-          labels={BRAND_LABEL}
-          selected={brand}
-          disabled={!interactive || !draft}
-          onPick={(b) => draft?.rewrite((t) => withBrand(t, b))}
-        />
-      </Field>
-      <Field index={2}>
-        <Options
           label="Format"
           values={CONTENT_FORMATS}
           labels={FORMAT_LABEL}
@@ -45,7 +34,7 @@ export function IdeaCard({ data, signals, interactive }: CardProps<IdeaData>) {
         />
       </Field>
       {suggested && interactive && (
-        <Field index={3}>
+        <Field index={2}>
           <Meta>Suggested by Jev. Click to change.</Meta>
         </Field>
       )}

@@ -1,4 +1,5 @@
 import { Star } from "lucide-react";
+import { LogoMark } from "./Logo";
 
 const REPO = "carlosmendes-taikai/marketingshift";
 // unfold is a fork of Shapeshift (MIT). Keep this credit.
@@ -38,8 +39,9 @@ export async function SiteChrome() {
     <>
       <p
         aria-hidden
-        className="text-foreground fixed start-[max(1rem,env(safe-area-inset-left))] top-[max(1rem,env(safe-area-inset-top))] z-30 flex h-8 items-center text-[19px] font-semibold tracking-[-0.02em] [font-stretch:78%]"
+        className="text-foreground fixed start-[max(1rem,env(safe-area-inset-left))] top-[max(1rem,env(safe-area-inset-top))] z-30 flex h-8 items-center gap-2 text-[19px] font-semibold tracking-[-0.02em] [font-stretch:78%]"
       >
+        <LogoMark className="size-6" />
         unfold
       </p>
       <div className="fixed end-[max(1rem,env(safe-area-inset-right))] top-[max(1rem,env(safe-area-inset-top))] z-30 flex items-center gap-2">

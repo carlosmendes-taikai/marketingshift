@@ -20,7 +20,7 @@ export function parseAbTest(text: string): AbTestData {
       ? "cta"
       : "headline";
 
-  // Quoted options win: "Your recap" vs "What 40 builders shipped".
+  // Quoted options win: "Your recap" vs "3 ideas that doubled our signups".
   const quoted = [...t.matchAll(/["“”]([^"“”]{2,120})["“”]/g)].map((m) => m[1].trim());
   if (quoted.length >= 2) return { kind, options: quoted.slice(0, 4) };
 

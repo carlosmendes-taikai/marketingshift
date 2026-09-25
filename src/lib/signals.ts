@@ -1,4 +1,4 @@
-import type { Answer, Brand, ContentFormat, EventMode, IntentResult, SignalKey, Signals, TimerKind } from "@/lib/jev/types";
+import type { Answer, ContentFormat, EventMode, IntentResult, SignalKey, Signals, TimerKind } from "@/lib/jev/types";
 
 export const SIGNAL_THRESHOLDS = {
   choiceMin: 0.6,
@@ -14,7 +14,6 @@ export type GatedSignals = {
   eventMode: EventMode | null;
   timerKind: TimerKind | null;
   /** Jev's pick for a content idea. Always its top answer: the card lets you change it in one click. */
-  brand: Brand | null;
   contentFormat: ContentFormat | null;
   recurring: boolean;
   isShoppingList: boolean;
@@ -27,7 +26,6 @@ export type GatedSignals = {
 export const neutralGated: GatedSignals = {
   eventMode: null,
   timerKind: null,
-  brand: null,
   contentFormat: null,
   recurring: false,
   isShoppingList: false,
@@ -51,10 +49,10 @@ function gateNoul(p: number, prev: boolean): boolean {
 }
 
 type ChoiceKey = "eventMode" | "timerKind";
-type PickKey = "brand" | "contentFormat";
+type PickKey = "contentFormat";
 type NoulKey = "recurring" | "isShoppingList";
 const CHOICE_KEYS: ChoiceKey[] = ["eventMode", "timerKind"];
-const PICK_KEYS: PickKey[] = ["brand", "contentFormat"];
+const PICK_KEYS: PickKey[] = ["contentFormat"];
 const NOUL_KEYS: NoulKey[] = ["recurring", "isShoppingList"];
 
 /**

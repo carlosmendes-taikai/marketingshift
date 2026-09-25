@@ -21,7 +21,7 @@ export function AbTestCard({ data, interactive }: CardProps<AbTestData>) {
         <Chip>{AB_KIND_LABEL[data.kind]}</Chip>
       </Field>
       <Field index={1} className="flex flex-col gap-2">
-        {data.options.length === 0 && <Missing>Add options, like “Your recap” vs “What 40 builders shipped”</Missing>}
+        {data.options.length === 0 && <Missing>Add options, like “Your recap” vs “3 ideas that doubled our signups”</Missing>}
         {data.options.map((o, i) => {
           const r = result?.options[i];
           const won = result?.winner === i;

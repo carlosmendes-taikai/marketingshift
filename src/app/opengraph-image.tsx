@@ -25,7 +25,7 @@ export default function OpengraphImage() {
           }}
         >
           <div style={{ fontSize: 38, color: ink, letterSpacing: -0.5, display: "flex" }}>
-            met ana from sonae, ai workshop<span style={{ color: "#2f6b4f" }}>|</span>
+            met ana from acme, wants a demo<span style={{ color: "#2f6b4f" }}>|</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
             <div style={{ width: 64, height: 64, borderRadius: 18, background: "#efe7d7", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -36,7 +36,7 @@ export default function OpengraphImage() {
           </div>
           <div style={{ fontSize: 34, fontWeight: 600, color: ink, display: "flex" }}>Ana</div>
           <div style={{ display: "flex", gap: 14 }}>
-            {["Sonae", "AI workshop"].map((c) => (
+            {["Acme", "Product demo"].map((c) => (
               <div key={c} style={{ fontSize: 24, color: "#504838", background: "#efe7d7", borderRadius: 999, padding: "8px 20px", display: "flex" }}>
                 {c}
               </div>
@@ -46,8 +46,9 @@ export default function OpengraphImage() {
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <svg width="44" height="44" viewBox="0 0 64 64">
             <rect width="64" height="64" rx="14" fill="#2f6b4f" />
-            <path d="M20 15h18l11 11v19a4 4 0 0 1-4 4H20a4 4 0 0 1-4-4V19a4 4 0 0 1 4-4z" fill="#f5efe3" />
-            <path d="M38 15v8a3 3 0 0 0 3 3h8z" fill="#d4c7ae" />
+            <rect x="21" y="13" width="22" height="6" rx="3" fill="#f5efe3" />
+            <path d="M24 22h16l8 7H16z" fill="#d4c7ae" />
+            <rect x="16" y="29" width="32" height="22" rx="3" fill="#f5efe3" />
           </svg>
           <div style={{ fontSize: 34, fontWeight: 600, color: ink, display: "flex" }}>unfold</div>
           <div style={{ fontSize: 30, color: muted, display: "flex" }}>type it, get the right card</div>

@@ -2,7 +2,6 @@ import { completenessFor } from "@/lib/parse";
 import { ZONE_PATTERN } from "@/lib/parse/timezone";
 import {
   type Answer,
-  BRANDS,
   type CardIntent,
   CONTENT_FORMATS,
   EVENT_MODES,
@@ -14,7 +13,7 @@ import {
 } from "./types";
 
 /** Keep in sync with questions.ts (asserted in tests). */
-export const MOCK_QUESTION_COUNT = 9;
+export const MOCK_QUESTION_COUNT = 8;
 export const MOCK_MODEL = "jev-offline";
 
 const has = (re: RegExp, t: string) => re.test(t);
@@ -171,11 +170,6 @@ export function mockClassify(text: string): IntentResult {
         [/\b(stopwatch|count up)\b/, "stopwatch"],
       ], "countdown"),
       isShoppingList: /\b(buy|get|groceries|shopping|milk|eggs|bread|coffee|pick up|order)\b/.test(t) ? 0.88 : 0.1,
-      brand: choose(BRANDS, t, [
-        [/\bfor layer ?x\b/, "layerx"],
-        [/\btaikai\b|\bhack(athon|er ?house)s?\b|\bbuilders?\b/, "taikai"],
-        [/\bai[- ]?cmo\b|\b(ai|claude|gpt|llm|agents?|automation|prompts?)\b/, "ai_cmo"],
-      ], "layerx"),
       contentFormat: choose(CONTENT_FORMATS, t, [
         [/\b(carousel|slides|step[- ]by[- ]step|frameworks?|\d+ (tips|ways|steps|lessons))\b/, "carousel"],
         [/\b(article|blog|guide|deep dive|case study)\b/, "article"],

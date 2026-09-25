@@ -1,13 +1,15 @@
 # Send to Google Sheets
 
-The "Send to Google Sheets" button appends each card as a row in a Google Sheet. It uses a small Apps Script web app attached to the sheet: free, no Zapier, no API keys.
+Every card has a **Send to Google Sheets** button. Each visitor connects their own sheet once: the app shows these steps, and the sheet link is saved in that visitor's browser only. Nothing is stored on the server, which only passes each card along to the visitor's own sheet.
 
-## Setup
+## Connect your sheet
 
-1. Create a Google Sheet (for example "unfold cards").
-2. Open **Extensions → Apps Script**, delete what is there and paste the script below. Save.
-3. Click **Deploy → New deployment**, pick the type **Web app**, set **Execute as: Me** and **Who has access: Anyone**, then **Deploy** and authorize. `@OnlyCurrentDoc` limits the script to this one sheet; "Anyone" only lets callers add rows, not read the sheet.
-4. Copy the **Web app URL** (`https://script.google.com/macros/s/.../exec`) and set it as `SHEETS_WEBHOOK_URL` on the server (Vercel project settings and `.env.local`).
+1. Open a new sheet at [sheets.new](https://sheets.new).
+2. Go to **Extensions → Apps Script**, replace the code with the script below and save.
+3. Click **Deploy → New deployment**, choose **Web app**, set **Execute as: Me** and **Who has access: Anyone**, then **Deploy** and allow access. Google warns that the app isn't verified: it's your own script, so choose **Advanced → Go to the project**.
+4. Copy the **Web app URL** (`https://script.google.com/macros/s/…/exec`) and paste it into unfold when it asks.
+
+`@OnlyCurrentDoc` limits the script to this one sheet, and "Anyone" only lets the link add rows: nobody can read the sheet through it. To stop, disconnect in unfold (the settings button next to "Send to Google Sheets") or delete the deployment in Apps Script.
 
 ```js
 /** @OnlyCurrentDoc */
