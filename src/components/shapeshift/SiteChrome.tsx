@@ -1,7 +1,7 @@
 import { Star } from "lucide-react";
 import { LogoMark } from "./Logo";
 
-const REPO = "carlosmendes-taikai/marketingshift";
+const REPO = "carlosmendes-taikai/unfold";
 // unfold is a fork of Shapeshift (MIT). Keep this credit.
 const ORIGINAL_REPO = "anishfn/shapeshift";
 
