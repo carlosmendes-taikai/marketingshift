@@ -4,6 +4,11 @@ import { LogoMark } from "./Logo";
 const REPO = "carlosmendes-taikai/unfold";
 // unfold is a fork of Shapeshift (MIT). Keep this credit.
 const ORIGINAL_REPO = "anishfn/shapeshift";
+const AUTHOR_URL = "https://x.com/thatCarlosM";
+
+/** Small mono links pinned to the bottom corners. */
+const FOOTER_LINK =
+  "text-muted-foreground hover:text-foreground focus-visible:outline-ring fixed bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 font-mono text-[12px] leading-4 transition-colors duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2";
 
 // Star count refreshes hourly; a failed fetch just hides the number.
 async function getStars(): Promise<number | null> {
@@ -64,11 +69,14 @@ export async function SiteChrome() {
         </a>
       </div>
       <a
-        href={`https://github.com/${ORIGINAL_REPO}`}
+        href={AUTHOR_URL}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-muted-foreground hover:text-foreground focus-visible:outline-ring fixed start-[max(1rem,env(safe-area-inset-left))] bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 font-mono text-[12px] leading-4 transition-colors duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2"
+        className={`${FOOTER_LINK} start-[max(1rem,env(safe-area-inset-left))]`}
       >
+        Built by <span className="decoration-border underline underline-offset-2">carlosm</span>
+      </a>
+      <a href={`https://github.com/${ORIGINAL_REPO}`} target="_blank" rel="noopener noreferrer" className={`${FOOTER_LINK} end-[max(1rem,env(safe-area-inset-right))]`}>
         Based on <span className="decoration-border underline underline-offset-2">Shapeshift by anishfn</span>
       </a>
     </>

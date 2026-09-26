@@ -20,7 +20,7 @@ export function LatencyHud({
   return (
     <div
       className={cn(
-        "pointer-events-none fixed end-[max(1rem,env(safe-area-inset-right))] bottom-[max(1rem,env(safe-area-inset-bottom))] font-mono text-[12px] leading-4 text-muted-foreground tabular-nums",
+        "pointer-events-none fixed end-[max(1rem,env(safe-area-inset-right))] bottom-[calc(max(1rem,env(safe-area-inset-bottom))+1.5rem)] font-mono text-[12px] leading-4 text-muted-foreground tabular-nums",
         large && "text-[15px] leading-5",
       )}
       aria-hidden
